@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./microservices/frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - cart
+      - checkout
+      - payment
+      - ad
+
+  cart:
+    build: ./microservices/cart
+
+  checkout:
+    build: ./microservices/checkout
+
+  payment:
+    build: ./microservices/payment
+
+  ad:
+    build: ./microservices/ad
