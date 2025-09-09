@@ -9,7 +9,7 @@ services:
     container_name: frontend
     build:
       context: ./
-      dockerfile: ./src/frontend/Dockerfile
+      dockerfile:  microservices/frontend/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -25,7 +25,7 @@ services:
     container_name: cart
     build:
       context: ./
-      dockerfile: ./src/cart/src/Dockerfile
+      dockerfile: microservices/cart/src/Dockerfile
     ports:
       - "7070:7070"
 
@@ -34,7 +34,7 @@ services:
     container_name: checkout
     build:
       context: ./
-      dockerfile: ./src/checkout/Dockerfile
+      dockerfile: microservices/checkout/Dockerfile
     ports:
       - "5050:5050"
     depends_on:
@@ -48,7 +48,7 @@ services:
     container_name: payment
     build:
       context: ./
-      dockerfile: ./src/payment/Dockerfile
+      dockerfile: microservices/payment/Dockerfile
     ports:
       - "50051:50051"
 
@@ -57,6 +57,6 @@ services:
     container_name: ad
     build:
       context: ./
-      dockerfile: ./src/ad/Dockerfile
+      dockerfile: microservices/ad/Dockerfile
     ports:
       - "9555:9555"
