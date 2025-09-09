@@ -57,6 +57,6 @@ services:
     container_name: ad
     build:
       context: ./
-      dockerfile: ./src/ad/Dockerfile
+      dockerfile: microservices/ad/Dockerfile
     ports:
       - "9555:9555"
