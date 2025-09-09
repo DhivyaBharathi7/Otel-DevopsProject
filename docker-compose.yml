@@ -1,24 +1,62 @@
-version: '3.8'
+networks:
+  default:
+    name: opentelemetry-demo
+    driver: bridge
 
 services:
   frontend:
-    build: ./microservices/frontend
+    image: ghcr.io/open-telemetry/demo:latest-frontend
+    container_name: frontend
+    build:
+      context: ./
+      dockerfile: ./src/frontend/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
-      - cart
-      - checkout
-      - payment
-      - ad
-
+      ad:
+        condition: service_started
+      cart:
+        condition: service_started
+      checkout:
+        condition: service_started
+    
   cart:
-    build: ./microservices/cart
+    image: ghcr.io/open-telemetry/demo:latest-cart
+    container_name: cart
+    build:
+      context: ./
+      dockerfile: ./src/cart/src/Dockerfile
+    ports:
+      - "7070:7070"
 
   checkout:
-    build: ./microservices/checkout
+    image: ghcr.io/open-telemetry/demo:latest-checkout
+    container_name: checkout
+    build:
+      context: ./
+      dockerfile: ./src/checkout/Dockerfile
+    ports:
+      - "5050:5050"
+    depends_on:
+      cart:
+        condition: service_started
+      payments:
+        condition: service_started
 
   payment:
-    build: ./microservices/payment
+    image: ghcr.io/open-telemetry/demo:latest-payment
+    container_name: payment
+    build:
+      context: ./
+      dockerfile: ./src/payment/Dockerfile
+    ports:
+      - "50051:50051"
 
   ad:
-    build: ./microservices/ad
+    image: ghcr.io/open-telemetry/demo:latest-ad
+    container_name: ad
+    build:
+      context: ./
+      dockerfile: ./src/ad/Dockerfile
+    ports:
+      - "9555:9555"
