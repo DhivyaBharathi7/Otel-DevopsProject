@@ -25,7 +25,7 @@ services:
     container_name: cart
     build:
       context: ./
-      dockerfile: ./src/cart/src/Dockerfile
+      dockerfile: microservices/cart/src/Dockerfile
     ports:
       - "7070:7070"
 
