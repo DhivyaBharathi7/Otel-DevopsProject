@@ -9,7 +9,7 @@ services:
     container_name: frontend
     build:
       context: ./
-      dockerfile:  microservices/frontend/Dockerfile
+      dockerfile: microservices/frontend/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
