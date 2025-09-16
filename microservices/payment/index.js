@@ -35,7 +35,7 @@ async function closeGracefully(signal) {
   process.kill(process.pid, signal)
 }
 
-const otelDemoPackage = grpc.loadPackageDefinition(protoLoader.loadSync('demo.proto'))
+const otelDemoPackage = grpc.loadPackageDefinition(protoLoader.loadSync('pb/demo.proto'))
 const server = new grpc.Server()
 
 server.addService(health.service, new health.Implementation({

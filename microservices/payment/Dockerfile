@@ -16,7 +16,7 @@ ENV NODE_ENV=production
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules/ ./node_modules/
 COPY . .
-COPY ./pb ./pb
+
 
 EXPOSE 6060
 ENTRYPOINT [ "npm", "run", "start" ]
