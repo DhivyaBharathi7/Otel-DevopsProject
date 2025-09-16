@@ -4,10 +4,15 @@ networks:
     driver: bridge
 
 services:
+  valkey:
+    image: valkey/valkey:latest
+    container_name: valkey
+    ports:
+      - "6379:6379"
   frontend:
     image: sdhivya/frontend-service:latest
     container_name: frontend
-    ports:  
+    ports:
       - "8080:8080"
     depends_on:
       ad:
@@ -16,53 +21,44 @@ services:
         condition: service_started
       checkout:
         condition: service_started
-    volumes:
-      - shared-data:/usr/src/app
-
   cart:
     image: sdhivya/cart-service:latest
     container_name: cart
     ports:
       - "7070:7070"
-    volumes:
-      - shared-data:/usr/src/app
+    environment:
+      - VALKEY_ADDR=valkey:6379
 
   checkout:
     image: sdhivya/checkout-service:latest
     container_name: checkout
     ports:
       - "8081:8081"
+    environment:
+      - CHECKOUT_PORT=8081
     depends_on:
-      cart:   
-        condition: service_started    
+      cart:
+        condition: service_started
       payment:
         condition: service_started
-    volumes:
-      - shared-data:/usr/src/app
 
   payment:
     image: sdhivya/payment-service:latest
     container_name: payment
     ports:
       - "50051:50051"
-    volumes:
-      - shared-data:/usr/src/app
 
   ad:
-    image: sdhivya/ad-service:latest    
+    image: sdhivya/ad-service:latest
     container_name: ad
     ports:
       - "5050:5050"
-    volumes:
-      - shared-data:/usr/src/app
+
 
   recommendation:
     image: sdhivya/recommendation-service:latest
     container_name: recommendation
     ports:
       - "8082:8082"
-    volumes:
-      - shared-data:/usr/src/app
-
-volumes:
-  shared-data:
+    environment:
+      - OTEL_SERVICE_NAME=recommendation
