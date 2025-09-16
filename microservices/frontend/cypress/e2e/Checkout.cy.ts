@@ -1,7 +1,8 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-import { CypressFields, getElementByField } from '../../utils/Cypress';
+import { CypressFields } from '../../utils/enums/CypressFields';
+import { getElementByField } from '../../utils/Cypress';
 
 describe.skip('Checkout Flow', () => {
   before(() => {
@@ -36,7 +37,7 @@ describe.skip('Checkout Flow', () => {
 
     cy.location('href').should('match', /\/cart$/);
     getElementByField(CypressFields.CartItemCount).should('contain', '2');
-
+    
     getElementByField(CypressFields.CartIcon).click({ force: true });
     getElementByField(CypressFields.CartGoToShopping).click();
 
