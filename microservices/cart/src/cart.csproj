@@ -36,6 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="$(ProtosDir)\**\*.proto" GrpcServices="Both" />
-  </ItemGroup>
+  <Protobuf Include="pb/demo.proto" GrpcServices="Server" />
+</ItemGroup>
 </Project>

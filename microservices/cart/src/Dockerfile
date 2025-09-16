@@ -3,22 +3,16 @@ ARG TARGETARCH
 
 WORKDIR /usr/src/app/
 
-COPY ./src/cart/ ./
-COPY ./pb/ ./pb/
+COPY . ./
 
-RUN dotnet restore ./src/cart.csproj -r linux-musl-$TARGETARCH
+RUN dotnet restore cart.csproj -r linux-musl-$TARGETARCH
+RUN dotnet publish cart.csproj -r linux-musl-$TARGETARCH --no-restore -o /cart
 
-RUN dotnet publish ./src/cart.csproj -r linux-musl-$TARGETARCH --no-restore -o /cart
-
-# -----------------------------------------------------------------------------
-
-# https://mcr.microsoft.com/v2/dotnet/runtime-deps/tags/list
+# Final runtime image
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine3.20
 
 WORKDIR /usr/src/app/
 COPY --from=builder /cart/ ./
-
-ENV DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
 
 EXPOSE 9055
 ENTRYPOINT [ "./cart" ]

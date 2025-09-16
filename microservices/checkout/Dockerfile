@@ -1,22 +1,21 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24.2-alpine AS builder
 
-WORKDIR /usr/src/app/
+WORKDIR /usr/src/app
 
-RUN --mount=type=cache,target=/go/pkg/mod/ \
-    --mount=type=bind,source=./src/checkout/go.sum,target=go.sum \
-    --mount=type=bind,source=./src/checkout/go.mod,target=go.mod \
-    go mod download
+# Download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN --mount=type=cache,target=/go/pkg/mod/ \
-    --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,rw,source=./src/checkout,target=. \
-    go build -ldflags "-s -w" -o /go/bin/checkout/ ./
+# Copy source code and build
+COPY . .
+RUN go build -ldflags="-s -w" -o /go/bin/checkout .
 
+# Final runtime image
 FROM alpine
 
-WORKDIR /usr/src/app/
+WORKDIR /usr/src/app
 
-COPY --from=builder /go/bin/checkout/ ./
+COPY --from=builder /go/bin/checkout .
 
-EXPOSE ${CHECKOUT_PORT}
-ENTRYPOINT [ "./checkout" ]
+EXPOSE 9097
+ENTRYPOINT ["./checkout"]
