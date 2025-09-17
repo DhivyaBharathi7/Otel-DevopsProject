@@ -17,7 +17,7 @@ services:
     image: sdhivya/frontend-service:latest
     container_name: frontend
     ports:
-      - "8080:8080"
+      - "8080:7070"
     networks:
       - otel-demo
     depends_on:
@@ -29,7 +29,7 @@ services:
     image: sdhivya/cart-service:latest
     container_name: cart
     ports:
-      - "7070:7070"
+      - "7070:9055"
     environment:
       - VALKEY_ADDR=valkey:6379
     networks:
@@ -39,9 +39,9 @@ services:
     image: sdhivya/checkout-service:latest
     container_name: checkout
     ports:
-      - "8081:8081"
+      - "8081:9097"
     environment:
-      - CHECKOUT_PORT=8081
+      - CHECKOUT_PORT=9097
     networks:
       - otel-demo
     depends_on:
@@ -62,7 +62,7 @@ services:
     image: sdhivya/ad-service:latest
     container_name: ad
     ports:
-      - "5050:5050"
+      - "5050:9099"
     networks:
       - otel-demo
 
@@ -70,7 +70,7 @@ services:
     image: sdhivya/recommendation-service:latest
     container_name: recommendation
     ports:
-      - "8082:8082"
+      - "8082:1010"
     environment:
       - OTEL_SERVICE_NAME=recommendation
       - PRODUCT_CATALOG_ADDR=fake_catalog:8080 # temporary if catalog not available
