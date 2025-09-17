@@ -5,6 +5,7 @@ const protoLoader = require('@grpc/proto-loader')
 const health = require('grpc-js-health-check')
 const opentelemetry = require('@opentelemetry/api')
 
+const path = require('path')
 const charge = require('./charge')
 const logger = require('./logger')
 
@@ -32,10 +33,15 @@ async function chargeServiceHandler(call, callback) {
 
 async function closeGracefully(signal) {
   server.forceShutdown()
-  process.kill(process.pid, signal)
+process.kill(process.pid, signal)
 }
 
-const otelDemoPackage = grpc.loadPackageDefinition(protoLoader.loadSync('pb/demo.proto'))
+
+const PROTO_PATH = path.join(__dirname, 'pb', 'demo.proto')
+
+const otelDemoPackage = grpc.loadPackageDefinition(
+  protoLoader.loadSync(PROTO_PATH)
+)
 const server = new grpc.Server()
 
 server.addService(health.service, new health.Implementation({
@@ -44,13 +50,25 @@ server.addService(health.service, new health.Implementation({
 
 server.addService(otelDemoPackage.oteldemo.PaymentService.service, { charge: chargeServiceHandler })
 
-server.bindAsync(`0.0.0.0:${process.env['PAYMENT_PORT']}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
-  if (err) {
-    return logger.error({ err })
+const port = process.env.PAYMENT_PORT || 6060;
+
+server.bindAsync(
+  `0.0.0.0:${port}`,
+  grpc.ServerCredentials.createInsecure(),
+  (err, boundPort) => {
+    if (err) {
+      return logger.error({ err });
+    }
+    logger.info(`payment gRPC server started on port ${boundPort}`);
+    server.start();
   }
+);
 
-  logger.info(`payment gRPC server started on port ${port}`)
-})
+async function closeGracefully(signal) {
+  logger.info(`Received ${signal}, shutting down gracefully...`);
+  server.forceShutdown();
+  process.exit(0);
+}
 
-process.once('SIGINT', closeGracefully)
-process.once('SIGTERM', closeGracefully)
+process.once('SIGINT', () => closeGracefully('SIGINT'));
+process.once('SIGTERM', () => closeGracefully('SIGTERM'));

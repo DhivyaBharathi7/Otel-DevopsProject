@@ -1,6 +1,7 @@
+version: "3.9"
+
 networks:
-  default:
-    name: otel-demo
+  otel-demo:
     driver: bridge
 
 services:
@@ -9,32 +10,20 @@ services:
     container_name: valkey
     ports:
       - "6379:6379"
+    networks:
+      - otel-demo
 
   frontend:
     image: sdhivya/frontend-service:latest
     container_name: frontend
     ports:
       - "8080:8080"
-    environment:
-      - FRONTEND_PORT=8080
-      - OTEL_SERVICE_NAME=frontend
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
-      - CART_ADDR=cart:7070
-      - AD_ADDR=ad:5050
-      - CHECKOUT_ADDR=checkout:8081
-      - RECOMMENDATION_ADDR=recommendation:8082
+    networks:
+      - otel-demo
     depends_on:
-      ad:
-        condition: service_started
-      cart:
-        condition: service_started
-      checkout:
-        condition: service_started
-      recommendation:
-        condition: service_started
+      - ad
+      - cart
+      - checkout
 
   cart:
     image: sdhivya/cart-service:latest
@@ -43,15 +32,8 @@ services:
       - "7070:7070"
     environment:
       - VALKEY_ADDR=valkey:6379
-      - CART_PORT=7070
-      - OTEL_SERVICE_NAME=cart
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
-    depends_on:
-      valkey:
-        condition: service_started
+    networks:
+      - otel-demo
 
   checkout:
     image: sdhivya/checkout-service:latest
@@ -60,43 +42,29 @@ services:
       - "8081:8081"
     environment:
       - CHECKOUT_PORT=8081
-      - OTEL_SERVICE_NAME=checkout
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
-      - SHIPPING_ADDR=shipping:50051   # <-- Set this to your shipping service address
+    networks:
+      - otel-demo
     depends_on:
-      cart:
-        condition: service_started
-      payment:
-        condition: service_started
+      - cart
+      - payment
 
   payment:
     image: sdhivya/payment-service:latest
     container_name: payment
     ports:
-      - "50051:50051"
+      - "50051:6060" # host:container
     environment:
-      - PAYMENT_PORT=50051
-      - OTEL_SERVICE_NAME=payment
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
+      - PAYMENT_PORT=6060
+    networks:
+      - otel-demo
 
   ad:
     image: sdhivya/ad-service:latest
     container_name: ad
     ports:
       - "5050:5050"
-    environment:
-      - AD_PORT=5050
-      - OTEL_SERVICE_NAME=ad
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
+    networks:
+      - otel-demo
 
   recommendation:
     image: sdhivya/recommendation-service:latest
@@ -105,49 +73,6 @@ services:
       - "8082:8082"
     environment:
       - OTEL_SERVICE_NAME=recommendation
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=none
-      - RECOMMENDATION_PORT=8082
-      - PRODUCT_CATALOG_ADDR=productcatalog:50051  # <-- Set this to your product catalog service address
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    ports:
-      - "4317:4317"
-      - "8888:8888"
-      - "8889:8889"
-      - "13133:13133"
-      - "55681:55681"
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:13133/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
-
-volumes:
-  frontend-data:
-  cart-data:
-  checkout-data:
-  payment-data:
-  ad-data:
-  recommendation-data:
-  valkey-data:
-  otel-collector-data:
+      - PRODUCT_CATALOG_ADDR=fake_catalog:8080 # temporary if catalog not available
+    networks:
+      - otel-demo
