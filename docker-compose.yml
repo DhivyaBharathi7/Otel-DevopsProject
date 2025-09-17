@@ -9,6 +9,7 @@ services:
     container_name: valkey
     ports:
       - "6379:6379"
+
   frontend:
     image: sdhivya/frontend-service:latest
     container_name: frontend
@@ -25,7 +26,6 @@ services:
       - AD_ADDR=ad:5050
       - CHECKOUT_ADDR=checkout:8081
       - RECOMMENDATION_ADDR=recommendation:8082
-
     depends_on:
       ad:
         condition: service_started
@@ -36,8 +36,6 @@ services:
       recommendation:
         condition: service_started
 
-    volumes:
-      - frontend-data:/app/data  
   cart:
     image: sdhivya/cart-service:latest
     container_name: cart
@@ -55,8 +53,6 @@ services:
       valkey:
         condition: service_started
 
-    volumes:
-      - cart-data:/app/data
   checkout:
     image: sdhivya/checkout-service:latest
     container_name: checkout
@@ -69,16 +65,13 @@ services:
       - OTEL_TRACES_SAMPLER=always_on
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
-
+      - SHIPPING_ADDR=shipping:50051   # <-- Set this to your shipping service address
     depends_on:
       cart:
         condition: service_started
       payment:
         condition: service_started
 
-        
-    volumes:
-       - checkout-data:/app/data
   payment:
     image: sdhivya/payment-service:latest
     container_name: payment
@@ -91,8 +84,7 @@ services:
       - OTEL_TRACES_SAMPLER=always_on
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
-    volumes:
-      - payment-data:/app/data
+
   ad:
     image: sdhivya/ad-service:latest
     container_name: ad
@@ -105,9 +97,6 @@ services:
       - OTEL_TRACES_SAMPLER=always_on
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
-    volumes:
-      - ad-data:/app/data
-
 
   recommendation:
     image: sdhivya/recommendation-service:latest
@@ -121,8 +110,8 @@ services:
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
       - RECOMMENDATION_PORT=8082
-    volumes:
-      - recommendation-data:/app/data
+      - PRODUCT_CATALOG_ADDR=productcatalog:50051  # <-- Set this to your product catalog service address
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
@@ -134,7 +123,7 @@ services:
       - "55681:55681"
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro 
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:13133/healthz"]
@@ -142,21 +131,18 @@ services:
       timeout: 10s
       retries: 5
     logging:
-
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
     deploy:
-
       resources:
         limits:
           memory: 512M
         reservations:
           memory: 256M
+
 volumes:
-
-
   frontend-data:
   cart-data:
   checkout-data:
@@ -165,4 +151,3 @@ volumes:
   recommendation-data:
   valkey-data:
   otel-collector-data:
-  
