@@ -19,4 +19,4 @@ COPY . .
 
 
 EXPOSE 6060
-ENTRYPOINT [ "npm", "run", "start" ]
+CMD ["npm" , "start"]
