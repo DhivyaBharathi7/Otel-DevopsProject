@@ -50,7 +50,7 @@ server.addService(health.service, new health.Implementation({
 
 server.addService(otelDemoPackage.oteldemo.PaymentService.service, { charge: chargeServiceHandler })
 
-const port = process.env.PAYMENT_PORT || 6060;
+const port = process.env.PAYMENT_PORT || 8085;
 
 server.bindAsync(
   `0.0.0.0:${port}`,

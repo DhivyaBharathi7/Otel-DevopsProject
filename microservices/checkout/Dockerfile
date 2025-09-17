@@ -17,5 +17,5 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /go/bin/checkout .
 
-EXPOSE 9097
+EXPOSE 8083
 ENTRYPOINT ["./checkout"]

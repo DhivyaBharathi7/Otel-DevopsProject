@@ -14,5 +14,5 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine3.20
 WORKDIR /usr/src/app/
 COPY --from=builder /cart/ ./
 
-EXPOSE 9055
+EXPOSE 8082
 ENTRYPOINT [ "./cart" ]
