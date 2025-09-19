@@ -1,5 +1,4 @@
 module github.com/opentelemetry/opentelemetry-demo/src/product-catalog
-
 go 1.24.2
 
 require (
@@ -63,7 +62,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-tool (
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc
-	google.golang.org/protobuf/cmd/protoc-gen-go
-)
+

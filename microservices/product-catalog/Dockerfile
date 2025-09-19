@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24.2-alpine AS builder
 
 WORKDIR /usr/src/app/
 
@@ -25,7 +25,7 @@ FROM alpine AS release
 WORKDIR /usr/src/app/
 
 COPY ./products/ ./products/
-COPY --from=builder /usr/src/app/product-catalog/ ./
+COPY --from=builder /usr/src/app/product-catalog ./
 
 ENV PRODUCT_CATALOG_PORT=8086
 ENTRYPOINT [ "./product-catalog" ]

@@ -18,5 +18,5 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules/ ./node_modules/
 COPY . .
 
 
-EXPOSE 6060
+EXPOSE 8085
 CMD ["npm" , "start"]
