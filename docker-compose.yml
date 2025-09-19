@@ -17,19 +17,41 @@ services:
     image: sdhivya/frontend-service:latest
     container_name: frontend
     ports:
-      - "8080:7070"
+      - "8080:8080"
+    environment:
+      - AD_SERVICE_ADDR=ad:8081
+      - CART_SERVICE_ADDR=cart:8082
+      - CHECKOUT_SERVICE_ADDR=checkout:8083
+      - PAYMENT_SERVICE_ADDR=payment:8085
+      - PRODUCT_CATALOG_ADDR=product-catalog:8086
+      - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
+      - SHIPPING_SERVICE_ADDR=shipping:8088
     networks:
       - otel-demo
     depends_on:
       - ad
       - cart
       - checkout
+      - payment
+      - product-catalog
+      - recommendation
+      - shipping
+
+  ad:
+    image: sdhivya/ad-service:latest
+    container_name: ad
+    ports:
+      - "8081:8081"
+    networks:
+      - otel-demo
+    depends_on:
+      - recommendation
 
   cart:
     image: sdhivya/cart-service:latest
     container_name: cart
     ports:
-      - "7070:9055"
+      - "8082:8082"
     environment:
       - VALKEY_ADDR=valkey:6379
     networks:
@@ -39,9 +61,10 @@ services:
     image: sdhivya/checkout-service:latest
     container_name: checkout
     ports:
-      - "8081:9097"
+      - "8083:8083"
     environment:
-      - CHECKOUT_PORT=9097
+      - CART_ADDR=cart:8082
+      - PAYMENT_ADDR=payment:8085
     networks:
       - otel-demo
     depends_on:
@@ -52,17 +75,15 @@ services:
     image: sdhivya/payment-service:latest
     container_name: payment
     ports:
-      - "50051:6060" # host:container
-    environment:
-      - PAYMENT_PORT=6060
+      - "8085:8085"
     networks:
       - otel-demo
 
-  ad:
-    image: sdhivya/ad-service:latest
-    container_name: ad
+  product-catalog:
+    image: sdhivya/product-catalog-service:latest
+    container_name: product-catalog
     ports:
-      - "5050:9099"
+      - "8086:8086"
     networks:
       - otel-demo
 
@@ -70,9 +91,18 @@ services:
     image: sdhivya/recommendation-service:latest
     container_name: recommendation
     ports:
-      - "8082:1010"
+      - "1010:1010"
     environment:
-      - OTEL_SERVICE_NAME=recommendation
-      - PRODUCT_CATALOG_ADDR=fake_catalog:8080 # temporary if catalog not available
+      - PRODUCT_CATALOG_ADDR=product-catalog:8086
+    networks:
+      - otel-demo
+    depends_on:
+      - product-catalog
+
+  shipping:
+    image: sdhivya/shipping-service:latest
+    container_name: shipping
+    ports:
+      - "8088:8088"
     networks:
       - otel-demo
