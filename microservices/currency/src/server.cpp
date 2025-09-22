@@ -5,6 +5,7 @@
 #include <iostream>
 #include <math.h>
 #include <demo.grpc.pb.h>
+#include <demo.pb.h>
 #include <grpc/health/v1/health.grpc.pb.h>
 
 #include "opentelemetry/trace/context.h"
