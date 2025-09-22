@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 networks:
   otel-demo:
@@ -13,67 +13,65 @@ services:
     networks:
       - otel-demo
 
-  frontend:
-    image: sdhivya/frontend-service:latest
-    container_name: frontend
-    ports:
-      - "8080:8080"
-    environment:
-      - AD_SERVICE_ADDR=ad:8081
-      - CART_SERVICE_ADDR=cart:8082
-      - CHECKOUT_SERVICE_ADDR=checkout:8083
-      - PAYMENT_SERVICE_ADDR=payment:8085
-      - PRODUCT_CATALOG_ADDR=product-catalog:8086
-      - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
-      - SHIPPING_SERVICE_ADDR=shipping:8088
-    networks:
-      - otel-demo
-    depends_on:
-      - ad
-      - cart
-      - checkout
-      - payment
-      - product-catalog
-      - recommendation
-      - shipping
-
   ad:
     image: sdhivya/ad-service:latest
     container_name: ad
+    environment:
+      - AD_PORT=8081
+      - AD_ADDR=ad:8081
+      - OTEL_SERVICE_NAME=ad-service
     ports:
       - "8081:8081"
     networks:
       - otel-demo
-    depends_on:
-      - recommendation
 
   cart:
     image: sdhivya/cart-service:latest
     container_name: cart
+    environment:
+      - CART_PORT=8082
+      - CART_ADDR=cart:8082
+      - VALKEY_ADDR=valkey:6379
+      - OTEL_SERVICE_NAME=cart-service
     ports:
       - "8082:8082"
-    environment:
-      - VALKEY_ADDR=valkey:6379
     networks:
       - otel-demo
+    depends_on:
+      - valkey
 
   checkout:
     image: sdhivya/checkout-service:latest
     container_name: checkout
+    environment:
+      - CHECKOUT_PORT=8083
+      - CHECKOUT_ADDR=checkout:8083
+      - CART_SERVICE_ADDR=cart:8082
+      - PAYMENT_SERVICE_ADDR=payment:8085
+      - SHIPPING_SERVICE_ADDR=shipping:8088
+      - PRODUCT_CATALOG_ADDR=product-catalog:8086
+      - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
+      - AD_SERVICE_ADDR=ad:8081
+      - OTEL_SERVICE_NAME=checkout-service
     ports:
       - "8083:8083"
-    environment:
-      - CART_ADDR=cart:8082
-      - PAYMENT_ADDR=payment:8085
     networks:
       - otel-demo
     depends_on:
       - cart
       - payment
+      - shipping
+      - product-catalog
+      - recommendation
+      - ad
 
   payment:
     image: sdhivya/payment-service:latest
     container_name: payment
+    environment:
+      - PAYMENT_PORT=8085
+      - PAYMENT_ADDR=payment:8085
+      - OTEL_SERVICE_NAME=payment-service
     ports:
       - "8085:8085"
     networks:
@@ -82,6 +80,10 @@ services:
   product-catalog:
     image: sdhivya/product-catalog-service:latest
     container_name: product-catalog
+    environment:
+      - PRODUCT_CATALOG_PORT=8086
+      - PRODUCT_CATALOG_ADDR=product-catalog:8086
+      - OTEL_SERVICE_NAME=product-catalog-service
     ports:
       - "8086:8086"
     networks:
@@ -90,10 +92,13 @@ services:
   recommendation:
     image: sdhivya/recommendation-service:latest
     container_name: recommendation
+    environment:
+      - RECOMMENDATION_PORT=1010
+      - RECOMMENDATION_ADDR=recommendation:1010
+      - PRODUCT_CATALOG_ADDR=product-catalog:8086
+      - OTEL_SERVICE_NAME=recommendation-service
     ports:
       - "1010:1010"
-    environment:
-      - PRODUCT_CATALOG_ADDR=product-catalog:8086
     networks:
       - otel-demo
     depends_on:
@@ -102,7 +107,39 @@ services:
   shipping:
     image: sdhivya/shipping-service:latest
     container_name: shipping
+    environment:
+      - SHIPPING_PORT=8088
+      - SHIPPING_ADDR=shipping:8088
+      - OTEL_SERVICE_NAME=shipping-service
     ports:
       - "8088:8088"
     networks:
       - otel-demo
+
+  frontend:
+    image: sdhivya/frontend-service:latest
+    container_name: frontend
+    environment:
+      - FRONTEND_PORT=8080
+      - FRONTEND_ADDR=frontend:8080
+      - AD_SERVICE_ADDR=ad:8081
+      - CART_SERVICE_ADDR=cart:8082
+      - CHECKOUT_SERVICE_ADDR=checkout:8083
+      - PAYMENT_SERVICE_ADDR=payment:8085
+      - PRODUCT_CATALOG_ADDR=product-catalog:8086
+      - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
+      - SHIPPING_SERVICE_ADDR=shipping:8088
+      - OTEL_SERVICE_NAME=frontend-service
+    ports:
+      - "8080:8080"
+    networks:
+      - otel-demo
+    depends_on:
+      - cart
+      - payment
+      - checkout
+      - ad
+      - recommendation
+      - shipping
+      - product-catalog
+

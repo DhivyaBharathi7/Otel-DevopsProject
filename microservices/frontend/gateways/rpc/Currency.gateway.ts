@@ -1,12 +1,12 @@
+// gateways/rpc/Currency.gateway.ts
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
 import { ChannelCredentials } from '@grpc/grpc-js';
 import { GetSupportedCurrenciesResponse, CurrencyServiceClient, Money } from '../../protos/demo';
 
-const { CURRENCY_ADDR = '' } = process.env;
-
-const client = new CurrencyServiceClient(CURRENCY_ADDR, ChannelCredentials.createInsecure());
+const currencyTarget = process.env.CURRENCY_SERVICE_ADDR || 'currency:8084';
+const client = new CurrencyServiceClient(currencyTarget, ChannelCredentials.createInsecure());
 
 const CurrencyGateway = () => ({
   convert(from: Money, toCode: string) {
@@ -22,3 +22,4 @@ const CurrencyGateway = () => ({
 });
 
 export default CurrencyGateway();
+
