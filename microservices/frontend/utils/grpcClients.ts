@@ -1,11 +1,29 @@
 // utils/grpcClients.ts
 
+declare var process: any;
+
 function getGrpcTarget(envVar: string): string {
-  const value = process.env[envVar];
-  if (!value || value.trim() === "") {
-    throw new Error(`${envVar} environment variable is missing or empty`);
+  // Runtime environment check
+  if (typeof process !== 'undefined' && process.env) {
+    const value = process.env[envVar];
+    if (value && value.trim() !== "") {
+      return value;
+    }
   }
-  return value; // Return plain hostname:port for internal Docker network
+  
+  // Fallback values for each service
+  const fallbacks: { [key: string]: string } = {
+    'PRODUCT_CATALOG_ADDR': 'product-catalog:8086',
+    'CART_SERVICE_ADDR': 'cart:8082',
+    'CURRENCY_SERVICE_ADDR': 'currency:8084',
+    'RECOMMENDATION_SERVICE_ADDR': 'recommendation:1010',
+    'PAYMENT_SERVICE_ADDR': 'payment:8085',
+    'SHIPPING_SERVICE_ADDR': 'shipping:8088',
+    'AD_SERVICE_ADDR': 'ad:8081',
+    'CHECKOUT_SERVICE_ADDR': 'checkout:8083',
+  };
+  
+  return fallbacks[envVar] || 'localhost:8080';
 }
 
 export const PRODUCT_CATALOG_TARGET = getGrpcTarget('PRODUCT_CATALOG_ADDR');
@@ -29,4 +47,3 @@ const grpcClients = {
 };
 
 export default grpcClients;
-
