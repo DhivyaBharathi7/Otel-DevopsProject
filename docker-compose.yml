@@ -185,6 +185,22 @@ services:
     networks:
       - otel-demo
 
+  # Envoy Proxy for Frontend
+  frontend-proxy:
+    image: envoyproxy/envoy:v1.28-latest
+    container_name: frontend-proxy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    networks:
+      - otel-demo
+    depends_on:
+      - frontend
+      - flagd
+      - otelcol
+      - image-provider
+
   frontend:
     build:
       context: ./microservices/frontend
@@ -209,11 +225,11 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
       - OTEL_EXPORTER_OTLP_INSECURE=true
       - NEXT_PUBLIC_OTEL_SERVICE_NAME=frontend-service
-      - NEXT_PUBLIC_PLATFORM_URL=http://13.203.200.147:8080
+      - NEXT_PUBLIC_PLATFORM_URL=http://localhost:8080
       - WEB_OTEL_SERVICE_NAME=frontend-web
-      - PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://13.203.200.147:8080/otlp-http/v1/traces
-    ports:
-      - "8080:8080"
+      - PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://localhost:8080/otlp-http/v1/traces
+    expose:
+      - "8080"
     networks:
       - otel-demo
     depends_on:
@@ -227,4 +243,16 @@ services:
       - recommendation
       - shipping
       - product-catalog
+
+  image-provider:
+    build:
+      context: ./microservices/image-provider
+      dockerfile: Dockerfile
+    container_name: image-provider
+    environment:
+      - IMAGE_PROVIDER_PORT=8081
+    expose:
+      - "8081"
+    networks:
+      - otel-demo
 

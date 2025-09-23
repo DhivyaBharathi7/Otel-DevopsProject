@@ -1,0 +1,281 @@
+static_resources:
+  listeners:
+  - name: listener_0
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 8080
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          access_log:
+          - name: envoy.access_loggers.stdout
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+          stat_prefix: ingress_http
+          codec_type: AUTO
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: local_service
+              domains: ["*"]
+              routes:
+              # Image provider routes
+              - match:
+                  prefix: "/images/"
+                route:
+                  cluster: image-provider
+              - match:
+                  prefix: "/icons/"
+                route:
+                  cluster: image-provider
+              # Frontend routes
+              - match:
+                  prefix: "/"
+                  headers:
+                  - name: ":path"
+                    string_match:
+                      prefix: "/flagservice/"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: flagd
+              - match:
+                  prefix: "/otlp-http/"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: otelcol-http
+              - match:
+                  prefix: "/api/cart"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: cart
+              - match:
+                  prefix: "/api/products"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: product-catalog
+              - match:
+                  prefix: "/api/recommendations"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: recommendation
+              - match:
+                  prefix: "/api/checkout"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: checkout
+              - match:
+                  prefix: "/api/currency"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: currency
+              - match:
+                  prefix: "/api/ads"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: ad
+              - match:
+                  prefix: "/api/shipping"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: shipping
+              - match:
+                  prefix: "/api/payment"
+                route:
+                  prefix_rewrite: "/"
+                  cluster: payment
+              # Default route to frontend
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: frontend
+          http_filters:
+          - name: envoy.filters.http.cors
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
+          - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  clusters:
+  - name: frontend
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: frontend
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: frontend
+                port_value: 8080
+
+  - name: flagd
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: flagd
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: flagd
+                port_value: 8013
+
+  - name: otelcol-http
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: otelcol-http
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: otelcol
+                port_value: 4318
+
+  - name: cart
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: cart
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: cart
+                port_value: 8082
+
+  - name: product-catalog
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: product-catalog
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: product-catalog
+                port_value: 8086
+
+  - name: recommendation
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: recommendation
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: recommendation
+                port_value: 1010
+
+  - name: checkout
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: checkout
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: checkout
+                port_value: 8083
+
+  - name: currency
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: currency
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: currency
+                port_value: 8084
+
+  - name: ad
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: ad
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: ad
+                port_value: 8081
+
+  - name: shipping
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: shipping
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: shipping
+                port_value: 8088
+
+  - name: image-provider
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: image-provider
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: image-provider
+                port_value: 8081
+
+  - name: payment
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: payment
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: payment
+                port_value: 8085
