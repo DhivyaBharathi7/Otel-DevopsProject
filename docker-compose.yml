@@ -107,6 +107,7 @@ services:
       - CURRENCY_SERVICE_ADDR=currency:8084
       - PAYMENT_SERVICE_ADDR=payment:8085
       - SHIPPING_SERVICE_ADDR=shipping:8088
+      - SHIPPING_ADDR=shipping:8088
       - PRODUCT_CATALOG_ADDR=product-catalog:8086
       - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
       - AD_SERVICE_ADDR=ad:8081
