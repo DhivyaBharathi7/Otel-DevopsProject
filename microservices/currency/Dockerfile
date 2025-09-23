@@ -35,7 +35,7 @@ COPY ./CMakeLists.txt CMakeLists.txt
 COPY ./data/ data/
 
 # Copy the demo.proto file from the project root to the proto directory
-COPY ../../pb/pb/demo.proto proto/demo.proto
+COPY  ./pb/demo.proto proto/demo.proto
 
 # Build the currency service
 RUN mkdir -p build && cd build \
