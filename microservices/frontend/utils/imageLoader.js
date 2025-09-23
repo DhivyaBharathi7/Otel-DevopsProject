@@ -15,6 +15,14 @@ if (typeof window !== "undefined" && window.location) {
 }
 
 export default function imageLoader({ src, width, quality }) {
-  // We pass down the optimisation request to the image-provider service here, without this, nextJs would try to use internal optimiser which is not working with the external image-provider.
-  return `${protocol}://${hostname}:${port}/${src}?w=${width}&q=${quality || 75}`
+  // For the demo, always use the same hostname and port as the current request
+  // This ensures images work correctly whether accessed via localhost or external IP
+  if (typeof window !== "undefined" && window.location) {
+    const { protocol, hostname, port } = window.location;
+    const baseUrl = `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+    return `${baseUrl}/${src}?w=${width}&q=${quality || 75}`;
+  }
+  
+  // Fallback for server-side rendering
+  return `/${src}?w=${width}&q=${quality || 75}`;
 }
