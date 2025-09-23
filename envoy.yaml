@@ -42,48 +42,7 @@ static_resources:
                 route:
                   prefix_rewrite: "/"
                   cluster: otelcol-http
-              # API routes to backend services
-              - match:
-                  prefix: "/api/cart"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: cart
-              - match:
-                  prefix: "/api/products"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: product-catalog
-              - match:
-                  prefix: "/api/recommendations"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: recommendation
-              - match:
-                  prefix: "/api/checkout"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: checkout
-              - match:
-                  prefix: "/api/currency"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: currency
-              - match:
-                  prefix: "/api/data"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: ad
-              - match:
-                  prefix: "/api/shipping"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: shipping
-              - match:
-                  prefix: "/api/payment"
-                route:
-                  prefix_rewrite: "/"
-                  cluster: payment
-              # Default route to frontend
+              # Default route to frontend (including /api/* routes)
               - match:
                   prefix: "/"
                 route:
