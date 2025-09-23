@@ -28,14 +28,14 @@ RUN git clone --depth 1 --branch v${OPENTELEMETRY_CPP_VERSION} https://github.co
 WORKDIR /currency
 
 # Copy your project files
-COPY ./microservices/currency/proto/ proto/
-COPY ./microservices/currency/src/ src/
-COPY ./microservices/currency/genproto/ genproto/
-COPY ./microservices/currency/CMakeLists.txt CMakeLists.txt
-COPY ./microservices/currency/data/ data/
+COPY ./proto/ proto/
+COPY ./src/ src/
+COPY ./genproto/ genproto/
+COPY ./CMakeLists.txt CMakeLists.txt
+COPY ./data/ data/
 
-# Copy the global pb directory for proto file access
-COPY ./pb/ pb/
+# Copy the demo.proto file from the project root to the proto directory
+COPY ../../pb/pb/demo.proto proto/demo.proto
 
 # Build the currency service
 RUN mkdir -p build && cd build \

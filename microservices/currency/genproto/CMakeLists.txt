@@ -5,13 +5,12 @@ find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 set(PROTO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../proto")
-set(GLOBAL_PROTO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../pb/pb")
 set(GENERATED_PROTOBUF_PATH "${CMAKE_BINARY_DIR}/generated/proto")
 set(GENERATED_HEALTH_PROTOBUF_PATH "${GENERATED_PROTOBUF_PATH}/grpc/health/v1")
 
 file(MAKE_DIRECTORY "${GENERATED_PROTOBUF_PATH}")
 
-set(DEMO_PROTO "${GLOBAL_PROTO_PATH}/demo.proto")
+set(DEMO_PROTO "${PROTO_PATH}/demo.proto")
 set(DEMO_PB_CPP_FILE "${GENERATED_PROTOBUF_PATH}/demo.pb.cc")
 set(DEMO_PB_H_FILE "${GENERATED_PROTOBUF_PATH}/demo.pb.h")
 set(DEMO_GRPC_PB_CPP_FILE "${GENERATED_PROTOBUF_PATH}/demo.grpc.pb.cc")
@@ -40,7 +39,7 @@ add_custom_command(
 
     COMMAND
       ${PROTOBUF_PROTOC_EXECUTABLE} ARGS "--experimental_allow_proto3_optional"
-      "--proto_path=${GLOBAL_PROTO_PATH}" "--proto_path=${PROTO_PATH}" ${PROTOBUF_INCLUDE_FLAGS}
+      "--proto_path=${PROTO_PATH}" ${PROTOBUF_INCLUDE_FLAGS}
       "--cpp_out=${GENERATED_PROTOBUF_PATH}"
       "--grpc_out=generate_mock_code=true:${GENERATED_PROTOBUF_PATH}"
       --plugin=protoc-gen-grpc="${gRPC_CPP_PLUGIN_EXECUTABLE}" ${DEMO_PROTO} ${HEALTH_PROTO})
