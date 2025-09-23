@@ -97,3 +97,5 @@ app.MapGet("/", async context =>
 });
 
 app.Run("http://0.0.0.0:8082");
+
+app.Run("http://0.0.0.0:8082");
