@@ -5,6 +5,24 @@ networks:
     driver: bridge
 
 services:
+  # OpenTelemetry Collector
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-col
+    command: ["--config=/etc/otelcol-contrib/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "55679:55679" # zpages extension
+    networks:
+      - otel-demo
+
   valkey:
     image: valkey/valkey:latest
     container_name: valkey
@@ -20,10 +38,14 @@ services:
       - AD_PORT=8081
       - AD_ADDR=ad:8081
       - OTEL_SERVICE_NAME=ad-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
     ports:
       - "8081:8081"
     networks:
       - otel-demo
+    depends_on:
+      - otelcol
 
   cart:
     image: sdhivya/cart-service:latest
@@ -33,12 +55,46 @@ services:
       - CART_ADDR=cart:8082
       - VALKEY_ADDR=valkey:6379
       - OTEL_SERVICE_NAME=cart-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
     ports:
       - "8082:8082"
     networks:
       - otel-demo
     depends_on:
+      - otelcol
       - valkey
+
+  flagd:
+    image: ghcr.io/open-feature/flagd:latest
+    container_name: flagd
+    environment:
+      - FLAGD_LOG_LEVEL=debug
+      - FLAGD_OTEL_COLLECTOR_URI=http://otelcol:4317
+      - OTEL_SERVICE_NAME=flagd
+    ports:
+      - "8013:8013"
+    volumes:
+      - ./microservices/flagd/demo.flagd.json:/etc/flagd/demo.flagd.json
+    command: ["start", "--uri", "file:///etc/flagd/demo.flagd.json"]
+    networks:
+      - otel-demo
+
+  currency:
+    image: sdhivya/currency-service:latest
+    container_name: currency
+    environment:
+      - CURRENCY_PORT=8084
+      - CURRENCY_ADDR=currency:8084
+      - OTEL_SERVICE_NAME=currency-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+    ports:
+      - "8084:8084"
+    networks:
+      - otel-demo
+    depends_on:
+      - otelcol
 
   checkout:
     image: sdhivya/checkout-service:latest
@@ -47,6 +103,7 @@ services:
       - CHECKOUT_PORT=8083
       - CHECKOUT_ADDR=checkout:8083
       - CART_SERVICE_ADDR=cart:8082
+      - CURRENCY_SERVICE_ADDR=currency:8084
       - PAYMENT_SERVICE_ADDR=payment:8085
       - SHIPPING_SERVICE_ADDR=shipping:8088
       - PRODUCT_CATALOG_ADDR=product-catalog:8086
@@ -59,6 +116,7 @@ services:
       - otel-demo
     depends_on:
       - cart
+      - currency
       - payment
       - shipping
       - product-catalog
@@ -125,17 +183,22 @@ services:
       - AD_SERVICE_ADDR=ad:8081
       - CART_SERVICE_ADDR=cart:8082
       - CHECKOUT_SERVICE_ADDR=checkout:8083
+      - CURRENCY_SERVICE_ADDR=currency:8084
       - PAYMENT_SERVICE_ADDR=payment:8085
       - PRODUCT_CATALOG_ADDR=product-catalog:8086
       - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
       - SHIPPING_SERVICE_ADDR=shipping:8088
+      - FLAGD_HOST=flagd
+      - FLAGD_PORT=8013
       - OTEL_SERVICE_NAME=frontend-service
     ports:
       - "8080:8080"
     networks:
       - otel-demo
     depends_on:
+      - flagd
       - cart
+      - currency
       - payment
       - checkout
       - ad
