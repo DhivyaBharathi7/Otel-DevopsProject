@@ -19,54 +19,69 @@ const {
 } = typeof window !== 'undefined' ? window.ENV : {};
 
 const FrontendTracer = async () => {
-  const { ZoneContextManager } = await import('@opentelemetry/context-zone');
+  try {
+    const { ZoneContextManager } = await import('@opentelemetry/context-zone');
 
-  let resource = resourceFromAttributes({
-    [ATTR_SERVICE_NAME]: NEXT_PUBLIC_OTEL_SERVICE_NAME,
-  });
-  const detectedResources = detectResources({detectors: [browserDetector]});
-  resource = resource.merge(detectedResources);
+    let resource = resourceFromAttributes({
+      [ATTR_SERVICE_NAME]: NEXT_PUBLIC_OTEL_SERVICE_NAME,
+    });
+    
+    try {
+      const detectedResources = detectResources({detectors: [browserDetector]});
+      resource = resource.merge(detectedResources);
+    } catch (error) {
+      console.warn('Failed to detect browser resources:', error);
+    }
 
-  const provider = new WebTracerProvider({
-    resource,
-    spanProcessors: [
-      new SessionIdProcessor(),
-      new BatchSpanProcessor(
-          new OTLPTraceExporter({
-            url: NEXT_PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces',
-          }),
-          {
-            scheduledDelayMillis: 500,
-          }
-      ),
-    ],
-  });
+    const provider = new WebTracerProvider({
+      resource,
+      spanProcessors: [
+        new SessionIdProcessor(),
+        new BatchSpanProcessor(
+            new OTLPTraceExporter({
+              url: NEXT_PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces',
+            }),
+            {
+              scheduledDelayMillis: 500,
+            }
+        ),
+      ],
+    });
 
-  const contextManager = new ZoneContextManager();
+    const contextManager = new ZoneContextManager();
 
-  provider.register({
-    contextManager,
-    propagator: new CompositePropagator({
-      propagators: [
-        new W3CBaggagePropagator(),
-        new W3CTraceContextPropagator()],
-    }),
-  });
-
-  registerInstrumentations({
-    tracerProvider: provider,
-    instrumentations: [
-      getWebAutoInstrumentations({
-        '@opentelemetry/instrumentation-fetch': {
-          propagateTraceHeaderCorsUrls: /.*/,
-          clearTimingResources: true,
-          applyCustomAttributesOnSpan(span) {
-            span.setAttribute('app.synthetic_request', IS_SYNTHETIC_REQUEST);
-          },
-        },
+    provider.register({
+      contextManager,
+      propagator: new CompositePropagator({
+        propagators: [
+          new W3CBaggagePropagator(),
+          new W3CTraceContextPropagator()],
       }),
-    ],
-  });
+    });
+
+    registerInstrumentations({
+      tracerProvider: provider,
+      instrumentations: [
+        getWebAutoInstrumentations({
+          '@opentelemetry/instrumentation-fetch': {
+            propagateTraceHeaderCorsUrls: /.*/,
+            clearTimingResources: true,
+            applyCustomAttributesOnSpan(span) {
+              try {
+                if (span && typeof span.setAttribute === 'function') {
+                  span.setAttribute('app.synthetic_request', IS_SYNTHETIC_REQUEST);
+                }
+              } catch (error) {
+                console.warn('Failed to set synthetic_request attribute:', error);
+              }
+            },
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+    console.error('Failed to initialize OpenTelemetry frontend tracer:', error);
+  }
 };
 
 export default FrontendTracer;
