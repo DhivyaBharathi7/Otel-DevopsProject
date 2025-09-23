@@ -1,24 +1,40 @@
 cmake_minimum_required(VERSION 3.26)
 project(currency)
 
+# ------------------- Packages -------------------
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(opentelemetry-cpp CONFIG REQUIRED)
 
-# Include paths for proto files and OpenTelemetry headers
-include_directories("${CMAKE_SOURCE_DIR}/pb" "${OPENTELEMETRY_CPP_INCLUDE_DIRS}")
-include_directories("${CMAKE_SOURCE_DIR}/pb")
-# Add the currency executable
-add_executable(currency
-    src/server.cpp
-    demo.pb.cc
-    demo.grpc.pb.cc
+# ------------------- Include directories -------------------
+include_directories(${Protobuf_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_BINARY_DIR})  # For generated .pb.h and .grpc.pb.h
+
+# ------------------- Proto files -------------------
+set(PROTO_FILES
+    ${CMAKE_SOURCE_DIR}/pb/demo.proto
 )
 
-# Link libraries
-target_link_libraries(
-    currency
+# Generate protobuf sources
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
+
+# Generate gRPC sources
+grpc_generate_cpp(GRPC_SRCS GRPC_HDRS ${PROTO_FILES})
+
+# ------------------- Build executable -------------------
+add_executable(currency
+    src/server.cpp
+    ${PROTO_SRCS}
+    ${PROTO_HDRS}
+    ${GRPC_SRCS}
+    ${GRPC_HDRS}
+)
+
+# ------------------- Link libraries -------------------
+target_link_libraries(currency
     protobuf::libprotobuf
+    ${Protobuf_LIBRARIES}
     ${OPENTELEMETRY_CPP_LIBRARIES}
     opentelemetry_trace
     opentelemetry_common
@@ -32,5 +48,7 @@ target_link_libraries(
     gRPC::grpc++
 )
 
-# Install binary
+# ------------------- Install -------------------
 install(TARGETS currency DESTINATION bin)
+
+
