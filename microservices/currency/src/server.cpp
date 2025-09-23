@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <math.h>
+#include <unordered_map>
+#include <string>
+#include <map>
 #include <demo.grpc.pb.h>
 #include <grpc/health/v1/health.grpc.pb.h>
 
@@ -43,6 +46,15 @@ namespace context = opentelemetry::context;
 
 namespace metrics_api = opentelemetry::metrics;
 namespace nostd       = opentelemetry::nostd;
+namespace common      = opentelemetry::common;
+
+// Define semantic conventions manually since header is not available
+namespace SemanticConventions {
+  static constexpr const char* kRpcSystem = "rpc.system";
+  static constexpr const char* kRpcService = "rpc.service";
+  static constexpr const char* kRpcMethod = "rpc.method";
+  static constexpr const char* kRpcGrpcStatusCode = "rpc.grpc.status_code";
+}
 
 namespace
 {
@@ -118,13 +130,13 @@ class CurrencyService final : public oteldemo::CurrencyService::Service
 
     std::string span_name = "Currency/GetSupportedCurrencies";
     auto span = get_tracer("currency")->StartSpan(span_name, options);
+    
+    // Add semantic convention attributes after span creation
+    span->SetAttribute(SemanticConventions::kRpcSystem, "grpc");
+    span->SetAttribute(SemanticConventions::kRpcService, "oteldemo.CurrencyService");
+    span->SetAttribute(SemanticConventions::kRpcMethod, "GetSupportedCurrencies");
+    span->SetAttribute(SemanticConventions::kRpcGrpcStatusCode, 0);
     auto scope = get_tracer("currency")->WithActiveSpan(span);
-
-    // Add span attributes manually after creation
-    span->SetAttribute("rpc.system", "grpc");
-    span->SetAttribute("rpc.service", "oteldemo.CurrencyService");
-    span->SetAttribute("rpc.method", "GetSupportedCurrencies");
-    span->SetAttribute("rpc.grpc.status_code", 0);
 
     span->AddEvent("Processing supported currencies request");
 
@@ -159,7 +171,7 @@ class CurrencyService final : public oteldemo::CurrencyService::Service
   void getUnitsAndNanos(Money& money, double value) {
     long unit = (long)value;
     double rem = value - unit;
-    long nano = rem * pow(10, 9);
+    long nano = (long)(rem * pow(10, 9));
     money.set_units(unit);
     money.set_nanos(nano);
   }
@@ -179,13 +191,13 @@ class CurrencyService final : public oteldemo::CurrencyService::Service
 
     std::string span_name = "Currency/Convert";
     auto span = get_tracer("currency")->StartSpan(span_name, options);
+    
+    // Add semantic convention attributes after span creation
+    span->SetAttribute(SemanticConventions::kRpcSystem, "grpc");
+    span->SetAttribute(SemanticConventions::kRpcService, "oteldemo.CurrencyService");
+    span->SetAttribute(SemanticConventions::kRpcMethod, "Convert");
+    span->SetAttribute(SemanticConventions::kRpcGrpcStatusCode, 0);
     auto scope = get_tracer("currency")->WithActiveSpan(span);
-
-    // Add span attributes manually after creation
-    span->SetAttribute("rpc.system", "grpc");
-    span->SetAttribute("rpc.service", "oteldemo.CurrencyService");
-    span->SetAttribute("rpc.method", "Convert");
-    span->SetAttribute("rpc.grpc.status_code", 0);
 
     span->AddEvent("Processing currency conversion request");
 
