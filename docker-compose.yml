@@ -179,7 +179,9 @@ services:
       - otel-demo
 
   frontend:
-    image: sdhivya/frontend-service:latest
+    build:
+      context: ./microservices/frontend
+      dockerfile: Dockerfile
     container_name: frontend
     restart: unless-stopped
     environment:
