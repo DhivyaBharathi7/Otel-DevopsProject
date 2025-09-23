@@ -16,13 +16,16 @@ set(CMAKE_BUILD_TYPE Release)
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-# Find OpenTelemetry with correct component names
-find_package(opentelemetry-cpp QUIET COMPONENTS api sdk ext_common exporters_otlp_common exporters_otlp_grpc)
-
-# If OpenTelemetry is not found with components, try without components
-if(NOT opentelemetry-cpp_FOUND)
-    find_package(opentelemetry-cpp REQUIRED)
-endif()
+# Find OpenTelemetry with all required components
+find_package(opentelemetry-cpp REQUIRED COMPONENTS 
+    api 
+    sdk 
+    ext_common 
+    exporters_otlp_common 
+    exporters_otlp_grpc_client
+    exporters_otlp_grpc_metrics
+    exporters_otlp_grpc_logs
+)
 
 # Add the genproto subdirectory to generate proto files
 add_subdirectory(genproto)
@@ -41,28 +44,14 @@ target_link_libraries(
     demo-proto
     protobuf::libprotobuf
     gRPC::grpc++
+    opentelemetry-cpp::api
+    opentelemetry-cpp::sdk
+    opentelemetry-cpp::ext_common
+    opentelemetry-cpp::exporters_otlp_common
+    opentelemetry-cpp::exporters_otlp_grpc_client
+    opentelemetry-cpp::exporters_otlp_grpc_metrics
+    opentelemetry-cpp::exporters_otlp_grpc_logs
 )
-
-# Link OpenTelemetry libraries if found
-if(TARGET opentelemetry-cpp::api)
-    target_link_libraries(currency opentelemetry-cpp::api)
-endif()
-if(TARGET opentelemetry-cpp::sdk) 
-    target_link_libraries(currency opentelemetry-cpp::sdk)
-endif()
-if(TARGET opentelemetry-cpp::ext_common)
-    target_link_libraries(currency opentelemetry-cpp::ext_common)
-endif()
-if(TARGET opentelemetry-cpp::exporters_otlp_common)
-    target_link_libraries(currency opentelemetry-cpp::exporters_otlp_common)
-endif()
-
-# Try alternative OpenTelemetry library linking approaches
-if(opentelemetry-cpp_FOUND)
-    # Link all OpenTelemetry libraries
-    target_link_libraries(currency ${opentelemetry-cpp_LIBRARIES})
-    target_include_directories(currency PRIVATE ${opentelemetry-cpp_INCLUDE_DIRS})
-endif()
 
 # Install binary
 install(TARGETS currency DESTINATION bin)
