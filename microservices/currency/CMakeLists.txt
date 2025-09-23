@@ -16,9 +16,6 @@ add_subdirectory(genproto)
 # Include paths for generated proto files and OpenTelemetry headers
 include_directories("${CMAKE_BINARY_DIR}/generated/proto")
 
-# Copy demo.proto from global pb directory to local proto directory
-configure_file("${CMAKE_SOURCE_DIR}/../../pb/pb/demo.proto" "${CMAKE_SOURCE_DIR}/proto/demo.proto" COPYONLY)
-
 # Add the currency executable
 add_executable(currency
     src/server.cpp

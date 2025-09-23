@@ -28,21 +28,20 @@ RUN git clone --depth 1 --branch v${OPENTELEMETRY_CPP_VERSION} https://github.co
 WORKDIR /currency
 
 # Copy your project files
-COPY ./src/currency/build/ build/
-COPY ./src/currency/proto/ proto/
-COPY ./src/currency/src/ src/
-COPY ./src/currency/genproto/CMakeLists.txt genproto/CMakeLists.txt
-COPY ./src/currency/CMakeLists.txt CMakeLists.txt
-COPY ./pb/demo.proto proto/demo.proto
+COPY ./build/ build/
+COPY ./proto/ proto/
+COPY ./src/ src/
+COPY ./genproto/CMakeLists.txt genproto/CMakeLists.txt
+COPY ./CMakeLists.txt CMakeLists.txt
 
 # Build the currency service
 RUN mkdir -p build && cd build \
     && cmake .. \
     && make -j$(nproc || sysctl -n hw.ncpu || echo 1) install
-FROM alpine:3.18 AS release
+FROM alpine:3.21 AS release
 
 # ------------------- Release Stage -------------------
-FROM base AS release
+FROM release
 
 # Copy built OpenTelemetry + currency binaries
 COPY --from=builder /usr/local /usr/local
