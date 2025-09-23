@@ -5,7 +5,7 @@ function getGrpcTarget(envVar) {
   if (!value || value.trim() === "") {
     throw new Error(`${envVar} environment variable is missing or empty`);
   }
-  return `grpc://${value}`; // use grpc:// if gRPC expects URI
+  return value; // Return plain hostname:port for internal Docker network
 }
 
 const PRODUCT_CATALOG_TARGET = getGrpcTarget('PRODUCT_CATALOG_ADDR');
