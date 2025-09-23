@@ -19,13 +19,14 @@ app.get('/*', (req, res) => {
   
   console.log(`Image request: ${imagePath} (w=${width}, q=${quality})`);
   
-  // Try to find the image in the frontend public directory
-  const frontendPublicPath = path.join(__dirname, '../../frontend/public', imagePath);
+  // Try to find the image in the copied public directory
+  const localImagePath = path.join(__dirname, 'public', imagePath);
   
-  if (fs.existsSync(frontendPublicPath)) {
+  if (fs.existsSync(localImagePath)) {
     // For now, just serve the original image without optimization
-    res.sendFile(frontendPublicPath);
+    res.sendFile(localImagePath);
   } else {
+    console.log(`Image not found: ${localImagePath}`);
     // If image doesn't exist, send a 1x1 transparent PNG
     const transparentPNG = Buffer.from(
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGAWA0ddgAAAABJRU5ErkJggg==',
