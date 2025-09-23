@@ -31,13 +31,9 @@ static_resources:
                   prefix: "/icons/"
                 route:
                   cluster: image-provider
-              # Frontend routes
+              # flagd service routes
               - match:
-                  prefix: "/"
-                  headers:
-                  - name: ":path"
-                    string_match:
-                      prefix: "/flagservice/"
+                  prefix: "/flagservice/"
                 route:
                   prefix_rewrite: "/"
                   cluster: flagd
@@ -46,6 +42,7 @@ static_resources:
                 route:
                   prefix_rewrite: "/"
                   cluster: otelcol-http
+              # API routes to backend services
               - match:
                   prefix: "/api/cart"
                 route:
@@ -72,7 +69,7 @@ static_resources:
                   prefix_rewrite: "/"
                   cluster: currency
               - match:
-                  prefix: "/api/ads"
+                  prefix: "/api/data"
                 route:
                   prefix_rewrite: "/"
                   cluster: ad
