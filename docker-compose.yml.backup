@@ -49,8 +49,8 @@ services:
 
   cart:
     build:
-      context: ./microservices/cart/src
-      dockerfile: Dockerfile
+      context: ./microservices/cart
+      dockerfile: src/Dockerfile
     container_name: cart
     environment:
       - CART_PORT=8082
