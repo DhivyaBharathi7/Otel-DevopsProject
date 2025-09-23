@@ -16,16 +16,8 @@ set(CMAKE_BUILD_TYPE Release)
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-# Find OpenTelemetry with all required components
-find_package(opentelemetry-cpp REQUIRED COMPONENTS 
-    api 
-    sdk 
-    ext_common 
-    exporters_otlp_common 
-    exporters_otlp_grpc_client
-    exporters_otlp_grpc_metrics
-    exporters_otlp_grpc_logs
-)
+# Find OpenTelemetry - try with and without components
+find_package(opentelemetry-cpp REQUIRED)
 
 # Add the genproto subdirectory to generate proto files
 add_subdirectory(genproto)
@@ -44,14 +36,45 @@ target_link_libraries(
     demo-proto
     protobuf::libprotobuf
     gRPC::grpc++
-    opentelemetry-cpp::api
-    opentelemetry-cpp::sdk
-    opentelemetry-cpp::ext_common
-    opentelemetry-cpp::exporters_otlp_common
-    opentelemetry-cpp::exporters_otlp_grpc_client
-    opentelemetry-cpp::exporters_otlp_grpc_metrics
-    opentelemetry-cpp::exporters_otlp_grpc_logs
 )
+
+# Link OpenTelemetry libraries conditionally based on availability
+if(TARGET opentelemetry-cpp::api)
+    target_link_libraries(currency opentelemetry-cpp::api)
+endif()
+
+if(TARGET opentelemetry-cpp::sdk) 
+    target_link_libraries(currency opentelemetry-cpp::sdk)
+endif()
+
+if(TARGET opentelemetry-cpp::trace)
+    target_link_libraries(currency opentelemetry-cpp::trace)
+endif()
+
+if(TARGET opentelemetry-cpp::metrics)
+    target_link_libraries(currency opentelemetry-cpp::metrics)
+endif()
+
+if(TARGET opentelemetry-cpp::logs)
+    target_link_libraries(currency opentelemetry-cpp::logs)
+endif()
+
+if(TARGET opentelemetry-cpp::otlp_grpc_exporter)
+    target_link_libraries(currency opentelemetry-cpp::otlp_grpc_exporter)
+endif()
+
+if(TARGET opentelemetry-cpp::otlp_grpc_log_record_exporter)
+    target_link_libraries(currency opentelemetry-cpp::otlp_grpc_log_record_exporter)
+endif()
+
+if(TARGET opentelemetry-cpp::otlp_grpc_metric_exporter)
+    target_link_libraries(currency opentelemetry-cpp::otlp_grpc_metric_exporter)
+endif()
+
+# Fallback: link all available OpenTelemetry libraries
+if(opentelemetry-cpp_FOUND AND opentelemetry-cpp_LIBRARIES)
+    target_link_libraries(currency ${opentelemetry-cpp_LIBRARIES})
+endif()
 
 # Install binary
 install(TARGETS currency DESTINATION bin)
