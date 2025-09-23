@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(currency-proto)
+
+# Set CMake policies for compatibility
+cmake_policy(SET CMP0057 NEW)  # Support for IN_LIST operator
 
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
