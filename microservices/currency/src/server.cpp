@@ -117,14 +117,14 @@ class CurrencyService final : public oteldemo::CurrencyService::Service
     options.parent   = GetSpan(new_context)->GetContext();
 
     std::string span_name = "Currency/GetSupportedCurrencies";
-    auto span =
-        get_tracer("currency")->StartSpan(span_name,
-                                      {{SemanticConventions::kRpcSystem, "grpc"},
-                                       {SemanticConventions::kRpcService, "oteldemo.CurrencyService"},
-                                       {SemanticConventions::kRpcMethod, "GetSupportedCurrencies"},
-                                       {SemanticConventions::kRpcGrpcStatusCode, 0}},
-                                      options);
+    auto span = get_tracer("currency")->StartSpan(span_name, options);
     auto scope = get_tracer("currency")->WithActiveSpan(span);
+
+    // Add span attributes manually after creation
+    span->SetAttribute("rpc.system", "grpc");
+    span->SetAttribute("rpc.service", "oteldemo.CurrencyService");
+    span->SetAttribute("rpc.method", "GetSupportedCurrencies");
+    span->SetAttribute("rpc.grpc.status_code", 0);
 
     span->AddEvent("Processing supported currencies request");
 
@@ -178,14 +178,14 @@ class CurrencyService final : public oteldemo::CurrencyService::Service
     options.parent   = GetSpan(new_context)->GetContext();
 
     std::string span_name = "Currency/Convert";
-    auto span =
-        get_tracer("currency")->StartSpan(span_name,
-                                      {{SemanticConventions::kRpcSystem, "grpc"},
-                                       {SemanticConventions::kRpcService, "oteldemo.CurrencyService"},
-                                       {SemanticConventions::kRpcMethod, "Convert"},
-                                       {SemanticConventions::kRpcGrpcStatusCode, 0}},
-                                      options);
+    auto span = get_tracer("currency")->StartSpan(span_name, options);
     auto scope = get_tracer("currency")->WithActiveSpan(span);
+
+    // Add span attributes manually after creation
+    span->SetAttribute("rpc.system", "grpc");
+    span->SetAttribute("rpc.service", "oteldemo.CurrencyService");
+    span->SetAttribute("rpc.method", "Convert");
+    span->SetAttribute("rpc.grpc.status_code", 0);
 
     span->AddEvent("Processing currency conversion request");
 
