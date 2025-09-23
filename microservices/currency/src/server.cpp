@@ -95,7 +95,9 @@ namespace
     {"ZAR", 16.0583},
   };
 
-  std::string version = std::getenv("VERSION"); 
+  // Fix null pointer issue - provide default value if VERSION env var is not set
+  const char* version_env = std::getenv("VERSION");
+  std::string version = version_env ? version_env : "1.0.0";
   std::string name{ "currency" };
 
   nostd::unique_ptr<metrics_api::Counter<uint64_t>> currency_counter;

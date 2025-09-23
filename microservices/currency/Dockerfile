@@ -43,13 +43,28 @@ COPY  ./pb/demo.proto proto/demo.proto
 RUN mkdir -p build && cd build \
     && cmake .. -DCMAKE_POLICY_DEFAULT_CMP0057=NEW \
     && make -j$(nproc || sysctl -n hw.ncpu || echo 1) install
-FROM alpine:3.21 AS release
 
 # ------------------- Release Stage -------------------
-FROM release
+FROM alpine:3.21 AS release
 
-# Copy built OpenTelemetry + currency binaries
+# Install ALL runtime dependencies for the currency service
+RUN apk update && \
+    apk add --no-cache \
+        grpc-dev \
+        protobuf-dev \
+        libstdc++ \
+        libgcc \
+        ca-certificates \
+        openssl \
+        c-ares \
+        re2 \
+        zlib
+
+# Copy built OpenTelemetry libraries and currency binary
 COPY --from=builder /usr/local /usr/local
+
+# Copy currency data files if needed
+COPY --from=builder /currency/data/ /currency/data/
 
 WORKDIR /currency
 
