@@ -111,11 +111,14 @@ services:
       - RECOMMENDATION_SERVICE_ADDR=recommendation:1010
       - AD_SERVICE_ADDR=ad:8081
       - OTEL_SERVICE_NAME=checkout-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
     ports:
       - "8083:8083"
     networks:
       - otel-demo
     depends_on:
+      - otelcol
       - cart
       - currency
       - payment
@@ -192,11 +195,16 @@ services:
       - FLAGD_HOST=flagd
       - FLAGD_PORT=8013
       - OTEL_SERVICE_NAME=frontend-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - NEXT_PUBLIC_OTEL_SERVICE_NAME=frontend-service
+      - NEXT_PUBLIC_PLATFORM_URL=http://localhost:8080
     ports:
       - "8080:8080"
     networks:
       - otel-demo
     depends_on:
+      - otelcol
       - flagd
       - cart
       - currency
