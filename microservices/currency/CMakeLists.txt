@@ -47,33 +47,37 @@ if(TARGET opentelemetry-cpp::sdk)
     target_link_libraries(currency opentelemetry-cpp::sdk)
 endif()
 
-if(TARGET opentelemetry-cpp::trace)
-    target_link_libraries(currency opentelemetry-cpp::trace)
-endif()
+# Try various OpenTelemetry library combinations
+set(OTEL_LIBS_TO_TRY
+    opentelemetry-cpp::trace
+    opentelemetry-cpp::metrics
+    opentelemetry-cpp::logs
+    opentelemetry-cpp::otlp_grpc_exporter
+    opentelemetry-cpp::otlp_grpc_log_record_exporter
+    opentelemetry-cpp::otlp_grpc_metric_exporter
+    opentelemetry-cpp::exporters_otlp_grpc
+    opentelemetry-cpp::exporters_otlp_grpc_client
+    opentelemetry-cpp::exporters_otlp_grpc_metrics
+    opentelemetry-cpp::exporters_otlp_grpc_logs
+    opentelemetry-cpp::ext
+    opentelemetry-cpp::common
+    opentelemetry-cpp::resource
+    opentelemetry-cpp::otel_exporter_otlp_grpc
+    opentelemetry-cpp::otel_exporter_otlp_grpc_metrics
+    opentelemetry-cpp::otel_exporter_otlp_grpc_logs
+)
 
-if(TARGET opentelemetry-cpp::metrics)
-    target_link_libraries(currency opentelemetry-cpp::metrics)
-endif()
-
-if(TARGET opentelemetry-cpp::logs)
-    target_link_libraries(currency opentelemetry-cpp::logs)
-endif()
-
-if(TARGET opentelemetry-cpp::otlp_grpc_exporter)
-    target_link_libraries(currency opentelemetry-cpp::otlp_grpc_exporter)
-endif()
-
-if(TARGET opentelemetry-cpp::otlp_grpc_log_record_exporter)
-    target_link_libraries(currency opentelemetry-cpp::otlp_grpc_log_record_exporter)
-endif()
-
-if(TARGET opentelemetry-cpp::otlp_grpc_metric_exporter)
-    target_link_libraries(currency opentelemetry-cpp::otlp_grpc_metric_exporter)
-endif()
+foreach(lib ${OTEL_LIBS_TO_TRY})
+    if(TARGET ${lib})
+        target_link_libraries(currency ${lib})
+        message(STATUS "Linking OpenTelemetry library: ${lib}")
+    endif()
+endforeach()
 
 # Fallback: link all available OpenTelemetry libraries
 if(opentelemetry-cpp_FOUND AND opentelemetry-cpp_LIBRARIES)
     target_link_libraries(currency ${opentelemetry-cpp_LIBRARIES})
+    message(STATUS "Linking OpenTelemetry libraries: ${opentelemetry-cpp_LIBRARIES}")
 endif()
 
 # Install binary
