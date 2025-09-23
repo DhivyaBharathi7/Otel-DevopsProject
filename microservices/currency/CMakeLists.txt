@@ -74,6 +74,13 @@ foreach(lib ${OTEL_LIBS_TO_TRY})
     endif()
 endforeach()
 
+# Additional manual library linking for potential static libraries
+target_link_libraries(currency 
+    -L/usr/local/lib
+    -lopentelemetry_exporter_otlp_grpc_metrics
+    -lopentelemetry_exporter_otlp_grpc
+)
+
 # Fallback: link all available OpenTelemetry libraries
 if(opentelemetry-cpp_FOUND AND opentelemetry-cpp_LIBRARIES)
     target_link_libraries(currency ${opentelemetry-cpp_LIBRARIES})
