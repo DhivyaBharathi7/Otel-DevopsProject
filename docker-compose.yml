@@ -181,9 +181,11 @@ services:
   frontend:
     image: sdhivya/frontend-service:latest
     container_name: frontend
+    restart: unless-stopped
     environment:
+      - NODE_ENV=production
       - FRONTEND_PORT=8080
-      - FRONTEND_ADDR=frontend:8080
+      - FRONTEND_ADDR=0.0.0.0:8080
       - AD_SERVICE_ADDR=ad:8081
       - CART_SERVICE_ADDR=cart:8082
       - CHECKOUT_SERVICE_ADDR=checkout:8083
@@ -198,7 +200,9 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
       - OTEL_EXPORTER_OTLP_INSECURE=true
       - NEXT_PUBLIC_OTEL_SERVICE_NAME=frontend-service
-      - NEXT_PUBLIC_PLATFORM_URL=http://localhost:8080
+      - NEXT_PUBLIC_PLATFORM_URL=http://13.203.200.147:8080
+      - WEB_OTEL_SERVICE_NAME=frontend-web
+      - PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://13.203.200.147:8080/otlp-http/v1/traces
     ports:
       - "8080:8080"
     networks:
