@@ -16,8 +16,8 @@ set(CMAKE_BUILD_TYPE Release)
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
-# Find OpenTelemetry with specific components
-find_package(opentelemetry-cpp QUIET COMPONENTS api sdk ext exporters_otlp)
+# Find OpenTelemetry with correct component names
+find_package(opentelemetry-cpp QUIET COMPONENTS api sdk ext_common exporters_otlp_grpc)
 
 # If OpenTelemetry is not found with components, try without components
 if(NOT opentelemetry-cpp_FOUND)
@@ -50,11 +50,11 @@ endif()
 if(TARGET opentelemetry-cpp::sdk) 
     target_link_libraries(currency opentelemetry-cpp::sdk)
 endif()
-if(TARGET opentelemetry-cpp::ext)
-    target_link_libraries(currency opentelemetry-cpp::ext)
+if(TARGET opentelemetry-cpp::ext_common)
+    target_link_libraries(currency opentelemetry-cpp::ext_common)
 endif()
-if(TARGET opentelemetry-cpp::exporters_otlp)
-    target_link_libraries(currency opentelemetry-cpp::exporters_otlp)
+if(TARGET opentelemetry-cpp::exporters_otlp_grpc)
+    target_link_libraries(currency opentelemetry-cpp::exporters_otlp_grpc)
 endif()
 
 # Install binary
