@@ -83,7 +83,9 @@ services:
       - otel-demo
 
   currency:
-    image: sdhivya/currency-service:latest
+    build:
+      context: ./microservices/currency
+      dockerfile: Dockerfile
     container_name: currency
     environment:
       - CURRENCY_PORT=8084
