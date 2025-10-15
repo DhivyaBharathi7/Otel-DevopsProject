@@ -4,23 +4,21 @@
 
 echo "Deploying OpenTelemetry Demo to Kubernetes..."
 
-# Create namespace
-echo " Creating Serviceaccount..."
+# Create service account
+echo "Creating service account..."
 kubectl apply -f Serviceaccount.yaml
 
-
-
 # Deploy ConfigMaps
-echo "⚙️ Deploying ConfigMaps..."
+echo "Deploying ConfigMaps..."
 kubectl apply -f configmaps.yaml
 
 # Deploy infrastructure services
-echo " Deploying infrastructure services..."
+echo "Deploying infrastructure services..."
 kubectl apply -f otelcol/
 kubectl apply -f valkey/
 
 # Deploy core services
-echo " Deploying core services..."
+echo "Deploying core services..."
 kubectl apply -f flagd/
 kubectl apply -f ad/
 kubectl apply -f cart/
@@ -33,9 +31,19 @@ kubectl apply -f shipping/
 kubectl apply -f image-provider/
 
 # Deploy frontend services
-echo " Deploying frontend services..."
+echo "Deploying frontend services..."
 kubectl apply -f frontend/
 kubectl apply -f frontend-proxy/
 
-echo "Deployment complete!"
+echo "Deployment completed successfully!"
+echo ""
+echo "Service Status:"
+kubectl get pods
+echo ""
+echo "Access the application:"
+kubectl get service frontend-proxy
+echo ""
+echo "To access the frontend, use:"
+echo "kubectl port-forward service/frontend-proxy 8080:8080"
+echo "Then visit: http://localhost:8080"
 
