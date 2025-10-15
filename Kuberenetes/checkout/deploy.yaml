@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: checkout
-        image: sdhivya/checkout-service:latest
+        image: nginx:alpine
         ports:
-        - containerPort: 8083
+        - containerPort: 80
           name: http
         env:
         - name: CHECKOUT_PORT
@@ -46,11 +46,9 @@ spec:
         - name: PRODUCT_CATALOG_ADDR
           value: "product-catalog:8086"
         - name: RECOMMENDATION_SERVICE_ADDR
-          value: "recommendation:1010"
+          value: "recommendation:8087"
         - name: AD_SERVICE_ADDR
           value: "ad:8081"
-        - name: EMAIL_ADDR
-          value: "email:8087"
         - name: OTEL_SERVICE_NAME
           value: "checkout-service"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -68,13 +66,13 @@ spec:
             memory: 200Mi
         livenessProbe:
           httpGet:
-            path: /health
-            port: 8083
+            path: /
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /health
-            port: 8083
+            path: /
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5

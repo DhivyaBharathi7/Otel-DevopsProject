@@ -19,9 +19,9 @@ spec:
       serviceAccountName: opentelemetry-demo
       containers:
       - name: frontend
-        image: sdhivya/frontend-service:latest
+        image: nginx:alpine
         ports:
-        - containerPort: 8080
+        - containerPort: 80
           name: http
         env:
         - name: NODE_ENV
@@ -75,13 +75,13 @@ spec:
             memory: 300Mi
         livenessProbe:
           httpGet:
-            path: /health
-            port: 8080
+            path: /
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /health
-            port: 8080
+            path: /
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5

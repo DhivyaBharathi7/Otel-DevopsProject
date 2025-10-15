@@ -44,16 +44,14 @@ spec:
             cpu: 50m
             memory: 100Mi
         livenessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 8013
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 8013
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
       volumes:
       - name: flagd-config

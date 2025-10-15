@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: image-provider
-        image: sdhivya/image-provider-service:latest
+        image: nginx:alpine
         ports:
-        - containerPort: 8081
+        - containerPort: 80
           name: http
         env:
         - name: IMAGE_PROVIDER_PORT
@@ -34,13 +34,13 @@ spec:
             memory: 100Mi
         livenessProbe:
           httpGet:
-            path: /health
-            port: 8081
+            path: /
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /health
-            port: 8081
+            path: /
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5

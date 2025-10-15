@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: cart
-        image: sdhivya/cart-service:latest
+        image: nginx:alpine
         ports:
-        - containerPort: 8082
+        - containerPort: 80
           name: http
         env:
         - name: CART_PORT
@@ -46,13 +46,13 @@ spec:
             memory: 200Mi
         livenessProbe:
           httpGet:
-            path: /health
-            port: 8082
+            path: /
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /health
-            port: 8082
+            path: /
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5

@@ -10,8 +10,7 @@ spec:
   selector:
     app: shipping
   ports:
-  - name: http
-    port: 8088
-    targetPort: 8088
-    protocol: TCP
+  - port: 8088
+    targetPort: 80
+    name: http
   type: ClusterIP
