@@ -34,14 +34,12 @@ spec:
             cpu: 100m
             memory: 150Mi
         livenessProbe:
-          httpGet:
-            path: /stats/prometheus
+          tcpSocket:
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /stats/prometheus
+          tcpSocket:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
