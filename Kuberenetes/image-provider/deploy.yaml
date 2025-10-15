@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-provider
+  namespace: opentelemetry-demo
+  labels:
+    app: image-provider
+    component: image-provider
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-provider
+  template:
+    metadata:
+      labels:
+        app: image-provider
+        component: image-provider
+    spec:
+      containers:
+      - name: image-provider
+        image: sdhivya/image-provider-service:latest
+        ports:
+        - containerPort: 8081
+          name: http
+        env:
+        - name: IMAGE_PROVIDER_PORT
+          value: "8081"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 100Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 5

@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: opentelemetry-demo
+  labels:
+    app: frontend
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        component: frontend
+    spec:
+      serviceAccountName: opentelemetry-demo
+      containers:
+      - name: frontend
+        image: sdhivya/frontend-service:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: FRONTEND_PORT
+          value: "8080"
+        - name: FRONTEND_ADDR
+          value: "0.0.0.0:8080"
+        - name: AD_SERVICE_ADDR
+          value: "ad:8081"
+        - name: CART_SERVICE_ADDR
+          value: "cart:8082"
+        - name: CHECKOUT_SERVICE_ADDR
+          value: "checkout:8083"
+        - name: CURRENCY_SERVICE_ADDR
+          value: "currency:8084"
+        - name: PAYMENT_SERVICE_ADDR
+          value: "payment:8085"
+        - name: PRODUCT_CATALOG_ADDR
+          value: "product-catalog:8086"
+        - name: RECOMMENDATION_SERVICE_ADDR
+          value: "recommendation:8087"
+        - name: SHIPPING_SERVICE_ADDR
+          value: "shipping:8088"
+        - name: FLAGD_HOST
+          value: "flagd"
+        - name: FLAGD_PORT
+          value: "8013"
+        - name: OTEL_SERVICE_NAME
+          value: "frontend-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otelcol:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: NEXT_PUBLIC_OTEL_SERVICE_NAME
+          value: "frontend-service"
+        - name: NEXT_PUBLIC_PLATFORM_URL
+          value: "http://frontend-proxy:8080"
+        - name: WEB_OTEL_SERVICE_NAME
+          value: "frontend-web"
+        - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: "http://frontend-proxy:8080/otlp-http/v1/traces"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=frontend-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 600Mi
+          requests:
+            cpu: 250m
+            memory: 300Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5

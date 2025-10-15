@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-catalog
+  namespace: opentelemetry-demo
+  labels:
+    app: product-catalog
+    component: productcatalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-catalog
+  template:
+    metadata:
+      labels:
+        app: product-catalog
+        component: productcatalog
+    spec:
+      containers:
+      - name: product-catalog
+        image: sdhivya/product-catalog-service:latest
+        ports:
+        - containerPort: 8086
+          name: http
+        env:
+        - name: PRODUCT_CATALOG_PORT
+          value: "8086"
+        - name: PRODUCT_CATALOG_ADDR
+          value: "product-catalog:8086"
+        - name: OTEL_SERVICE_NAME
+          value: "product-catalog-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otelcol:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=product-catalog-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 150Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8086
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8086
+          initialDelaySeconds: 5
+          periodSeconds: 5

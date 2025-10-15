@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation
+  namespace: opentelemetry-demo
+  labels:
+    app: recommendation
+    component: recommendation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendation
+  template:
+    metadata:
+      labels:
+        app: recommendation
+        component: recommendation
+    spec:
+      containers:
+      - name: recommendation
+        image: sdhivya/recommendation-service:latest
+        ports:
+        - containerPort: 8087
+          name: http
+        env:
+        - name: RECOMMENDATION_PORT
+          value: "8087"
+        - name: RECOMMENDATION_ADDR
+          value: "recommendation:8087"
+        - name: PRODUCT_CATALOG_ADDR
+          value: "product-catalog:8086"
+        - name: OTEL_SERVICE_NAME
+          value: "recommendation-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otelcol:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=recommendation-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 150Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8087
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8087
+          initialDelaySeconds: 5
+          periodSeconds: 5

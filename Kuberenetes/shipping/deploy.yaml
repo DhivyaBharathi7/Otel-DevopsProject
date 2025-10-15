@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping
+  namespace: opentelemetry-demo
+  labels:
+    app: shipping
+    component: shipping
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipping
+  template:
+    metadata:
+      labels:
+        app: shipping
+        component: shipping
+    spec:
+      containers:
+      - name: shipping
+        image: sdhivya/shipping-service:latest
+        ports:
+        - containerPort: 8088
+          name: http
+        env:
+        - name: SHIPPING_PORT
+          value: "8088"
+        - name: SHIPPING_ADDR
+          value: "shipping:8088"
+        - name: OTEL_SERVICE_NAME
+          value: "shipping-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otelcol:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=shipping-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 150Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8088
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8088
+          initialDelaySeconds: 5
+          periodSeconds: 5

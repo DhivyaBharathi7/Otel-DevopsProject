@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-proxy
+  namespace: opentelemetry-demo
+  labels:
+    app: frontend-proxy
+    component: frontend-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-proxy
+  template:
+    metadata:
+      labels:
+        app: frontend-proxy
+        component: frontend-proxy
+    spec:
+      containers:
+      - name: frontend-proxy
+        image: envoyproxy/envoy:v1.28-latest
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy/envoy.yaml
+          subPath: envoy.yaml
+        resources:
+          limits:
+            cpu: 200m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 150Mi
+        livenessProbe:
+          httpGet:
+            path: /stats/prometheus
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /stats/prometheus
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config

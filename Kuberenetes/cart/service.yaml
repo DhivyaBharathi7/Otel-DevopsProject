@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart
+  namespace: opentelemetry-demo
+  labels:
+    app: cart
+    component: cartservice
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8082
+    targetPort: 8082
+    name: http
+  selector:
+    app: cart

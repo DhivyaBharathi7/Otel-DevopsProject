@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flagd
+  namespace: opentelemetry-demo
+  labels:
+    app: flagd
+    component: flagd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flagd
+  template:
+    metadata:
+      labels:
+        app: flagd
+        component: flagd
+    spec:
+      containers:
+      - name: flagd
+        image: ghcr.io/open-feature/flagd:latest
+        ports:
+        - containerPort: 8013
+          name: http
+        env:
+        - name: FLAGD_LOG_LEVEL
+          value: "debug"
+        - name: FLAGD_OTEL_COLLECTOR_URI
+          value: "http://otelcol:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "flagd"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=flagd,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        command: ["start", "--uri", "file:///etc/flagd/demo.flagd.json"]
+        volumeMounts:
+        - name: flagd-config
+          mountPath: /etc/flagd/demo.flagd.json
+          subPath: demo.flagd.json
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 100Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8013
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8013
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: flagd-config
+        configMap:
+          name: flagd-config
