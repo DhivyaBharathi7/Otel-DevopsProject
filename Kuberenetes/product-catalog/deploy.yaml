@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: product-catalog
-  namespace: opentelemetry-demo
   labels:
     app: product-catalog
     component: productcatalog

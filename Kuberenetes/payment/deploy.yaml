@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payment
-  namespace: opentelemetry-demo
   labels:
     app: payment
     component: paymentservice

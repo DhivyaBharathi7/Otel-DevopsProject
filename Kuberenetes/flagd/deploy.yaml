@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flagd
-  namespace: opentelemetry-demo
   labels:
     app: flagd
     component: flagd

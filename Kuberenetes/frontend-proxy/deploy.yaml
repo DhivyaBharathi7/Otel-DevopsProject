@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-proxy
-  namespace: opentelemetry-demo
   labels:
     app: frontend-proxy
     component: frontend-proxy

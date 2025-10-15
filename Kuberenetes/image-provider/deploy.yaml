@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: image-provider
-  namespace: opentelemetry-demo
   labels:
     app: image-provider
     component: image-provider
