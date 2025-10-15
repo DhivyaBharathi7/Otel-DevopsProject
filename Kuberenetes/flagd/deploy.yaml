@@ -31,7 +31,8 @@ spec:
           value: "flagd"
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: "service.name=flagd,service.namespace=opentelemetry-demo,service.version=1.12.0"
-        command: ["start", "--uri", "file:///etc/flagd/demo.flagd.json"]
+        command: ["/usr/local/bin/flagd"]
+        args: ["start", "--uri", "file:///etc/flagd/demo.flagd.json"]
         volumeMounts:
         - name: flagd-config
           mountPath: /etc/flagd/demo.flagd.json

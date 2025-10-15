@@ -20,7 +20,8 @@ spec:
       containers:
       - name: otelcol
         image: otel/opentelemetry-collector-contrib:latest
-        command: ["--config=/etc/otelcol-contrib/otel-collector-config.yaml"]
+        command: ["/otelcol-contrib"]
+        args: ["--config=/etc/otelcol-contrib/otel-collector-config.yaml"]
         ports:
         - containerPort: 1888
           name: pprof
