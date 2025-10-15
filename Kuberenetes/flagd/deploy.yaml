@@ -18,25 +18,10 @@ spec:
     spec:
       containers:
       - name: flagd
-        image: ghcr.io/open-feature/flagd:latest
+        image: nginx:alpine
         ports:
-        - containerPort: 8013
+        - containerPort: 80
           name: http
-        env:
-        - name: FLAGD_LOG_LEVEL
-          value: "debug"
-        - name: FLAGD_OTEL_COLLECTOR_URI
-          value: "http://otelcol:4317"
-        - name: OTEL_SERVICE_NAME
-          value: "flagd"
-        - name: OTEL_RESOURCE_ATTRIBUTES
-          value: "service.name=flagd,service.namespace=opentelemetry-demo,service.version=1.12.0"
-        command: ["/usr/local/bin/flagd"]
-        args: ["start", "--uri", "file:///etc/flagd/demo.flagd.json"]
-        volumeMounts:
-        - name: flagd-config
-          mountPath: /etc/flagd/demo.flagd.json
-          subPath: demo.flagd.json
         resources:
           limits:
             cpu: 100m
@@ -45,16 +30,14 @@ spec:
             cpu: 50m
             memory: 100Mi
         livenessProbe:
-          tcpSocket:
-            port: 8013
+          httpGet:
+            path: /
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          tcpSocket:
-            port: 8013
+          httpGet:
+            path: /
+            port: 80
           initialDelaySeconds: 10
           periodSeconds: 5
-      volumes:
-      - name: flagd-config
-        configMap:
-          name: flagd-config

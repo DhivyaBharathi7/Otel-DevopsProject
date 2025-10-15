@@ -9,25 +9,25 @@ spec:
   type: ClusterIP
   ports:
   - port: 1888
-    targetPort: 1888
+    targetPort: 80
     name: pprof
   - port: 8888
-    targetPort: 8888
+    targetPort: 80
     name: prometheus
   - port: 8889
-    targetPort: 8889
+    targetPort: 80
     name: prom-exporter
   - port: 13133
-    targetPort: 13133
+    targetPort: 80
     name: health-check
   - port: 4317
-    targetPort: 4317
+    targetPort: 80
     name: otlp-grpc
   - port: 4318
-    targetPort: 4318
+    targetPort: 80
     name: otlp-http
   - port: 55679
-    targetPort: 55679
+    targetPort: 80
     name: zpages
   selector:
     app: otelcol

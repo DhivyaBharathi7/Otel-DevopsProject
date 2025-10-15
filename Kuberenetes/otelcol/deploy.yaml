@@ -19,31 +19,10 @@ spec:
       serviceAccountName: opentelemetry-demo
       containers:
       - name: otelcol
-        image: otel/opentelemetry-collector-contrib:latest
-        command: ["/otelcol-contrib"]
-        args: ["--config=/etc/otelcol-contrib/otel-collector-config.yaml"]
+        image: nginx:alpine
         ports:
-        - containerPort: 1888
-          name: pprof
-        - containerPort: 8888
-          name: prometheus
-        - containerPort: 8889
-          name: prom-exporter
-        - containerPort: 13133
-          name: health-check
-        - containerPort: 4317
-          name: otlp-grpc
-        - containerPort: 4318
-          name: otlp-http
-        - containerPort: 55679
-          name: zpages
-        env:
-        - name: OTEL_SERVICE_NAME
-          value: "otelcol"
-        volumeMounts:
-        - name: otel-collector-config
-          mountPath: /etc/otelcol-contrib/otel-collector-config.yaml
-          subPath: otel-collector-config.yaml
+        - containerPort: 80
+          name: http
         resources:
           limits:
             cpu: 200m
@@ -54,16 +33,12 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 13133
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /
-            port: 13133
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
-      volumes:
-      - name: otel-collector-config
-        configMap:
-          name: otel-collector-config
