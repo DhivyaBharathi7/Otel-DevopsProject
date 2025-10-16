@@ -29,6 +29,8 @@ spec:
           value: "recommendation:8087"
         - name: PRODUCT_CATALOG_ADDR
           value: "product-catalog:8086"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "product-catalog:8086"
         - name: OTEL_SERVICE_NAME
           value: "recommendation-service"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
