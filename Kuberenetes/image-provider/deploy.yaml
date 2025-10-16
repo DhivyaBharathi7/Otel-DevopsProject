@@ -25,6 +25,14 @@ spec:
         env:
         - name: IMAGE_PROVIDER_PORT
           value: "80"
+        - name: OTEL_SERVICE_NAME
+          value: "imageprovider"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otelcol:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=imageprovider,service.namespace=opentelemetry-demo,service.version=1.12.0"
         resources:
           limits:
             cpu: 100m
