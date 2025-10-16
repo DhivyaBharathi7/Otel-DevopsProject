@@ -46,10 +46,8 @@ spec:
           value: "recommendation:8087"
         - name: SHIPPING_SERVICE_ADDR
           value: "shipping:8088"
-        - name: NEXT_PUBLIC_OTEL_SERVICE_NAME
-          value: "frontend-service"
         - name: IMAGE_PROVIDER_URL
-          value: ""
+          value: "/"
         - name: FLAGD_HOST
           value: "flagd"
         - name: FLAGD_PORT
@@ -62,12 +60,8 @@ spec:
           value: "true"
         - name: NEXT_PUBLIC_OTEL_SERVICE_NAME
           value: "frontend-service"
-        - name: NEXT_PUBLIC_PLATFORM_URL
-          value: "http://frontend-proxy:8080"
         - name: WEB_OTEL_SERVICE_NAME
           value: "frontend-web"
-        - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-          value: "http://frontend-proxy:8080/otlp-http/v1/traces"
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: "service.name=frontend-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
         resources:
