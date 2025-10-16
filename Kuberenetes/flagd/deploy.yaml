@@ -22,6 +22,12 @@ spec:
         ports:
         - containerPort: 8013
           name: http
+        - containerPort: 8014
+          name: metrics
+        - containerPort: 8015
+          name: sync
+        - containerPort: 8016
+          name: ofrep
         env:
         - name: FLAGD_LOG_LEVEL
           value: "debug"
@@ -44,13 +50,15 @@ spec:
             cpu: 50m
             memory: 100Mi
         livenessProbe:
-          tcpSocket:
-            port: 8013
+          httpGet:
+            path: /healthz
+            port: 8014
           initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
-          tcpSocket:
-            port: 8013
+          httpGet:
+            path: /readyz
+            port: 8014
           initialDelaySeconds: 30
           periodSeconds: 5
       volumes:
