@@ -16,6 +16,52 @@ spec:
         app: image-provider
         component: image-provider
     spec:
+      initContainers:
+      - name: setup-files
+        image: ghcr.io/open-telemetry/demo:1.12.0-imageprovider
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          # Copy files from /static to /usr/share/nginx/html
+          cp -r /static/* /usr/share/nginx/html/
+          
+          # Create proper directory structure
+          mkdir -p /usr/share/nginx/html/images /usr/share/nginx/html/icons /usr/share/nginx/html/images/products
+          
+          # Copy images to the correct locations if they exist in /static
+          if [ -f /static/Banner.png ]; then
+            cp /static/Banner.png /usr/share/nginx/html/images/
+          fi
+          if [ -f /static/opentelemetry-demo-logo.png ]; then
+            cp /static/opentelemetry-demo-logo.png /usr/share/nginx/html/images/
+          fi
+          
+          # Copy all product images
+          if [ -d /static/products ]; then
+            cp /static/products/* /usr/share/nginx/html/images/products/ 2>/dev/null || true
+          fi
+          
+          # Create basic SVG icons
+          cat > /usr/share/nginx/html/icons/Chevron.svg << 'EOF'
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          EOF
+          
+          cat > /usr/share/nginx/html/icons/CartIcon.svg << 'EOF'
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          EOF
+          
+          echo "Files setup completed"
+          ls -la /usr/share/nginx/html/
+          ls -la /usr/share/nginx/html/images/
+          ls -la /usr/share/nginx/html/icons/
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
       containers:
       - name: image-provider
         image: ghcr.io/open-telemetry/demo:1.12.0-imageprovider
@@ -37,41 +83,9 @@ spec:
           value: "service.name=imageprovider,service.namespace=opentelemetry-demo,service.version=1.12.0"
         - name: ENVOY_PORT
           value: "8080"
-        command: ["/bin/sh"]
-        args:
-        - -c
-        - |
-          # Create the proper directory structure
-          mkdir -p /static/images /static/icons /static/images/products
-          
-          # Copy images to the correct locations
-          if [ -f /static/Banner.png ]; then
-            cp /static/Banner.png /static/images/
-          fi
-          if [ -f /static/opentelemetry-demo-logo.png ]; then
-            cp /static/opentelemetry-demo-logo.png /static/images/
-          fi
-          
-          # Copy all product images
-          if [ -d /static/products ]; then
-            cp /static/products/* /static/images/products/ 2>/dev/null || true
-          fi
-          
-          # Create basic SVG icons
-          cat > /static/icons/Chevron.svg << 'EOF'
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          EOF
-          
-          cat > /static/icons/CartIcon.svg << 'EOF'
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          EOF
-          
-          # Start nginx
-          exec nginx -g "daemon off;"
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
         resources:
           limits:
             cpu: 100m
@@ -89,3 +103,6 @@ spec:
             port: 80
           initialDelaySeconds: 10
           periodSeconds: 5
+      volumes:
+      - name: html-volume
+        emptyDir: {}
