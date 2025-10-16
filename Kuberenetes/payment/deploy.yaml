@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: payment
-        image: nginx:alpine
+        image: ghcr.io/open-telemetry/demo:1.12.0-paymentservice
         ports:
-        - containerPort: 80
+        - containerPort: 8085
           name: http
         env:
         - name: PAYMENT_PORT
@@ -43,14 +43,12 @@ spec:
             cpu: 100m
             memory: 150Mi
         livenessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8085
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8085
           initialDelaySeconds: 5
           periodSeconds: 5

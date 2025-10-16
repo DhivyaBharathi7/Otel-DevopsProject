@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: checkout
-        image: nginx:alpine
+        image: ghcr.io/open-telemetry/demo:1.12.0-checkoutservice
         ports:
-        - containerPort: 80
+        - containerPort: 8083
           name: http
         env:
         - name: CHECKOUT_PORT
@@ -65,14 +65,12 @@ spec:
             cpu: 150m
             memory: 200Mi
         livenessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8083
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8083
           initialDelaySeconds: 5
           periodSeconds: 5

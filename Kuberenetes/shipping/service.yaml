@@ -11,6 +11,6 @@ spec:
     app: shipping
   ports:
   - port: 8088
-    targetPort: 80
+    targetPort: 8088
     name: http
   type: ClusterIP

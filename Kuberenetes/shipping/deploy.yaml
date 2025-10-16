@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: shipping
-        image: nginx:alpine
+        image: ghcr.io/open-telemetry/demo:1.12.0-shippingservice
         ports:
-        - containerPort: 80
+        - containerPort: 8088
           name: http
         env:
         - name: SHIPPING_PORT
@@ -43,14 +43,12 @@ spec:
             cpu: 100m
             memory: 150Mi
         livenessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8088
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8088
           initialDelaySeconds: 5
           periodSeconds: 5

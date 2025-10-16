@@ -18,9 +18,9 @@ spec:
     spec:
       containers:
       - name: cart
-        image: nginx:alpine
+        image: ghcr.io/open-telemetry/demo:1.12.0-cartservice
         ports:
-        - containerPort: 80
+        - containerPort: 8082
           name: http
         env:
         - name: CART_PORT
@@ -45,14 +45,12 @@ spec:
             cpu: 150m
             memory: 200Mi
         livenessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8082
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /
-            port: 80
+          grpc:
+            port: 8082
           initialDelaySeconds: 5
           periodSeconds: 5
