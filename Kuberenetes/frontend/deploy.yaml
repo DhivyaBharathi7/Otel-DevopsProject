@@ -46,6 +46,8 @@ spec:
           value: "recommendation:8087"
         - name: SHIPPING_SERVICE_ADDR
           value: "shipping:8088"
+        - name: IMAGE_PROVIDER_URL
+          value: "http://image-provider:80"
         - name: FLAGD_HOST
           value: "flagd"
         - name: FLAGD_PORT
