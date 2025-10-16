@@ -19,7 +19,7 @@ spec:
       serviceAccountName: opentelemetry-demo
       containers:
       - name: otelcol
-        image: otel/opentelemetry-collector-contrib:latest
+        image: otel/opentelemetry-collector-contrib:0.95.0
         args: ["--config=/etc/otelcol-contrib/otel-collector-config.yaml"]
         ports:
         - containerPort: 1888

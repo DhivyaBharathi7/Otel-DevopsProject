@@ -51,6 +51,8 @@ spec:
           value: "recommendation:8087"
         - name: AD_SERVICE_ADDR
           value: "ad:8081"
+        - name: EMAIL_SERVICE_ADDR
+          value: "email:8080"
         - name: OTEL_SERVICE_NAME
           value: "checkout-service"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT

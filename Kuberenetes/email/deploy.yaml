@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email
+  labels:
+    app: email
+    component: emailservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email
+  template:
+    metadata:
+      labels:
+        app: email
+        component: emailservice
+    spec:
+      containers:
+      - name: email
+        image: ghcr.io/open-telemetry/demo:1.12.0-emailservice
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 6060
+          name: grpc
+        env:
+        - name: EMAIL_SERVICE_PORT
+          value: "8080"
+        - name: OTEL_SERVICE_NAME
+          value: "email-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otelcol:4317"
+        - name: OTEL_EXPORTER_OTLP_INSECURE
+          value: "true"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=email-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 5
