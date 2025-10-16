@@ -64,6 +64,12 @@ spec:
           value: "frontend-web"
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: "service.name=frontend-service,service.namespace=opentelemetry-demo,service.version=1.12.0"
+        - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: ""
+        - name: FRONTEND_PROXY_ADDR
+          value: "frontend-proxy:8080"
+        - name: ENV_PLATFORM
+          value: "local"
         resources:
           limits:
             cpu: 500m
