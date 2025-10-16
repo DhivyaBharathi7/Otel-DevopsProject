@@ -46,6 +46,8 @@ spec:
           value: "recommendation:8087"
         - name: SHIPPING_SERVICE_ADDR
           value: "shipping:8088"
+        - name: NEXT_PUBLIC_OTEL_SERVICE_NAME
+          value: "frontend-service"
         - name: IMAGE_PROVIDER_URL
           value: ""
         - name: FLAGD_HOST
