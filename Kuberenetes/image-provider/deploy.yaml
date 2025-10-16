@@ -18,13 +18,13 @@ spec:
     spec:
       containers:
       - name: image-provider
-        image: nginx:alpine
+        image: ghcr.io/open-telemetry/demo:1.12.0-imageprovider
         ports:
         - containerPort: 80
           name: http
         env:
         - name: IMAGE_PROVIDER_PORT
-          value: "8081"
+          value: "80"
         resources:
           limits:
             cpu: 100m
