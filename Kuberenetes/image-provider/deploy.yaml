@@ -23,45 +23,50 @@ spec:
         args:
         - -c
         - |
-          # Copy files from /static to /usr/share/nginx/html
-          cp -r /static/* /usr/share/nginx/html/
+          # Create proper directory structure in /static
+          mkdir -p /shared-static/images /shared-static/icons /shared-static/images/products
           
-          # Create proper directory structure
-          mkdir -p /usr/share/nginx/html/images /usr/share/nginx/html/icons /usr/share/nginx/html/images/products
-          
-          # Copy images to the correct locations if they exist in /static
-          if [ -f /static/Banner.png ]; then
-            cp /static/Banner.png /usr/share/nginx/html/images/
-          fi
-          if [ -f /static/opentelemetry-demo-logo.png ]; then
-            cp /static/opentelemetry-demo-logo.png /usr/share/nginx/html/images/
+          # Copy original files to shared volume
+          if [ -d /static ]; then
+            cp -r /static/* /shared-static/
           fi
           
-          # Copy all product images
-          if [ -d /static/products ]; then
-            cp /static/products/* /usr/share/nginx/html/images/products/ 2>/dev/null || true
+          # Copy images to the correct locations
+          if [ -f /shared-static/Banner.png ]; then
+            cp /shared-static/Banner.png /shared-static/images/
+          fi
+          if [ -f /shared-static/opentelemetry-demo-logo.png ]; then
+            cp /shared-static/opentelemetry-demo-logo.png /shared-static/images/
+          fi
+          
+          # Copy all product images if they exist
+          if [ -d /shared-static/products ]; then
+            cp /shared-static/products/* /shared-static/images/products/ 2>/dev/null || true
           fi
           
           # Create basic SVG icons
-          cat > /usr/share/nginx/html/icons/Chevron.svg << 'EOF'
+          cat > /shared-static/icons/Chevron.svg << 'EOF'
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           EOF
           
-          cat > /usr/share/nginx/html/icons/CartIcon.svg << 'EOF'
+          cat > /shared-static/icons/CartIcon.svg << 'EOF'
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           EOF
           
-          echo "Files setup completed"
-          ls -la /usr/share/nginx/html/
-          ls -la /usr/share/nginx/html/images/
-          ls -la /usr/share/nginx/html/icons/
+          echo "Files setup completed!"
+          echo "Contents of /shared-static:"
+          ls -la /shared-static/
+          echo "Contents of /shared-static/images:"
+          ls -la /shared-static/images/
+          echo "Contents of /shared-static/icons:"
+          ls -la /shared-static/icons/
         volumeMounts:
-        - name: html-volume
-          mountPath: /usr/share/nginx/html
+        - name: static-volume
+          mountPath: /shared-static
       containers:
       - name: image-provider
         image: ghcr.io/open-telemetry/demo:1.12.0-imageprovider
@@ -84,8 +89,8 @@ spec:
         - name: ENVOY_PORT
           value: "8080"
         volumeMounts:
-        - name: html-volume
-          mountPath: /usr/share/nginx/html
+        - name: static-volume
+          mountPath: /static
         resources:
           limits:
             cpu: 100m
@@ -104,5 +109,5 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
       volumes:
-      - name: html-volume
+      - name: static-volume
         emptyDir: {}
