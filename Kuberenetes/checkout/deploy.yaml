@@ -45,6 +45,8 @@ spec:
           value: "shipping:8088"
         - name: PRODUCT_CATALOG_ADDR
           value: "product-catalog:8086"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "product-catalog:8086"
         - name: RECOMMENDATION_SERVICE_ADDR
           value: "recommendation:8087"
         - name: AD_SERVICE_ADDR
@@ -67,10 +69,10 @@ spec:
         livenessProbe:
           grpc:
             port: 8083
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
           grpc:
             port: 8083
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
           periodSeconds: 5

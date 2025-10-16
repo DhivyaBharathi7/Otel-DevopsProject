@@ -20,11 +20,11 @@ spec:
       - name: cart
         image: ghcr.io/open-telemetry/demo:1.12.0-cartservice
         ports:
-        - containerPort: 8082
+        - containerPort: 8080
           name: http
         env:
         - name: CART_PORT
-          value: "8082"
+          value: "8080"
         - name: CART_ADDR
           value: "cart:8082"
         - name: VALKEY_ADDR
@@ -46,11 +46,11 @@ spec:
             memory: 200Mi
         livenessProbe:
           grpc:
-            port: 8082
+            port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           grpc:
-            port: 8082
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
